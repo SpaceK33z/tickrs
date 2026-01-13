@@ -1,0 +1,25 @@
+## 2026-01-13: Fixed compilation errors and failing tests
+
+### Problem
+The project had compilation errors in two files:
+1. `src/config/mod.rs` - Raw string literals with `#` characters were not being parsed correctly
+2. `src/models/project.rs` - Same issue with JSON test strings containing `#FF5733` color codes
+
+Additionally, `test_config_default` was failing because `#[derive(Default)]` doesn't apply serde default functions.
+
+### Solution
+1. Replaced multi-line raw string literals (`r#"..."#`) with single-line escaped strings
+2. Implemented `Default` trait manually for `Config` struct to properly use the `default_project_color()` function
+
+### Changes Made
+- `src/config/mod.rs`:
+  - Changed `test_config_deserialization` to use escaped string instead of raw string
+  - Added manual `impl Default for Config` to ensure `default_project_color` is applied
+- `src/models/project.rs`:
+  - Changed `test_project_deserialization` to use escaped JSON string
+  - Changed `test_project_data_deserialization` to use escaped JSON string
+
+### Results
+- All 23 tests pass
+- Project compiles successfully
+- Clippy shows only expected dead_code warnings (code not yet used) and minor suggestions

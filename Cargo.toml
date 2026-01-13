@@ -1,0 +1,61 @@
+[package]
+name = "tickrs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Kees Kluskens <kees@kees.im>"]
+description = "A Rust binary for tickrs"
+license = "MIT"
+keywords = ["cli", "tool"]
+categories = ["command-line-utilities"]
+readme = "README.md"
+repository = "https://github.com/SpaceK33z/tickrs"
+homepage = "https://github.com/SpaceK33z/tickrs"
+documentation = "https://docs.rs/tickrs"
+rust-version = "1.87"
+
+[dependencies]
+# CLI framework
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Date/time handling
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+
+# Error handling
+anyhow = "1"
+thiserror = "2"
+
+# Configuration paths
+dirs = "6"
+
+# Config file parsing
+toml = "0.8"
+
+# Environment variables
+dotenvy = "0.15"
+
+# Natural language date parsing
+dateparser = "0.2"
+
+# OAuth 2.0
+oauth2 = "5"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Open browser for OAuth
+webbrowser = "1"
+
+[dev-dependencies]
+# Add test dependencies here when needed

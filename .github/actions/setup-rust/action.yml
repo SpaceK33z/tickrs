@@ -1,0 +1,16 @@
+name: Setup Rust
+description: Setup Rust toolchain with caching
+
+inputs:
+  toolchain:
+    description: Rust toolchain to install
+    default: stable
+
+runs:
+  using: composite
+  steps:
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ inputs.toolchain }}
+        components: rustfmt, clippy
+    - uses: Swatinem/rust-cache@v2
