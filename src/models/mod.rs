@@ -8,5 +8,5 @@ pub mod time;
 pub use priority::Priority;
 pub use status::Status;
 pub use task::Task;
-pub use project::{Project, ProjectData};
+pub use project::{Project, ProjectData, INBOX_PROJECT_ID};
 pub use subtask::ChecklistItem;

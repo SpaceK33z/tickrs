@@ -23,3 +23,82 @@ Additionally, `test_config_default` was failing because `#[derive(Default)]` doe
 - All 23 tests pass
 - Project compiles successfully
 - Clippy shows only expected dead_code warnings (code not yet used) and minor suggestions
+
+## 2026-01-14: Fixed missing INBOX_PROJECT_ID export
+
+### Problem
+The project had a compilation error - `INBOX_PROJECT_ID` was defined in `src/models/project.rs` but not exported from `src/models/mod.rs`, causing `src/api/project.rs` to fail compilation.
+
+### Solution
+Added `INBOX_PROJECT_ID` to the public exports in `src/models/mod.rs`.
+
+### Changes Made
+- `src/models/mod.rs`:
+  - Added `INBOX_PROJECT_ID` to the `pub use project::` statement
+
+### Results
+- All 27 tests pass
+- Project compiles successfully
+- Clippy shows only expected dead_code warnings (code not yet used)
+
+## 2026-01-14: Implemented Phase 6 - Task API Endpoints
+
+### What was done
+Implemented all task-related API endpoints in `src/api/task.rs` as specified in PRD Phase 6.
+
+### API Methods Implemented
+1. `list_tasks(project_id)` - List all tasks in a project (uses GET /project/{id}/data)
+2. `get_task(project_id, task_id)` - Get single task (GET /project/{projectId}/task/{taskId})
+3. `create_task(request)` - Create new task (POST /task)
+4. `update_task(task_id, request)` - Update task (POST /task/{id})
+5. `delete_task(project_id, task_id)` - Delete task (DELETE /project/{projectId}/task/{taskId})
+6. `complete_task(project_id, task_id)` - Mark complete (POST /project/{projectId}/task/{taskId}/complete)
+7. `uncomplete_task(project_id, task_id)` - Mark incomplete (updates status to 0)
+
+### Request Types Added
+- `CreateTaskRequest` - For creating tasks with optional fields (content, priority, dates, tags, etc.)
+- `UpdateTaskRequest` - For updating tasks with optional fields including status
+
+### Changes Made
+- `src/api/task.rs`: Complete implementation with 7 API methods and 2 request types
+- `src/api/mod.rs`: Added exports for `CreateTaskRequest` and `UpdateTaskRequest`
+
+### Results
+- All 31 tests pass (4 new tests for task request serialization)
+- Project compiles successfully
+- Clippy shows only expected dead_code warnings (CLI not yet implemented)
+
+## 2026-01-14: Implemented Phase 7 - Output Formatting
+
+### What was done
+Implemented the output formatting module in `src/output/` as specified in PRD Phase 7.
+
+### Module Structure
+- `src/output/mod.rs` - Module exports and `OutputFormat` enum (Text/Json)
+- `src/output/json.rs` - JSON output formatting with standard response wrapper
+- `src/output/text.rs` - Text output formatting for human-readable output
+
+### JSON Output Implementation
+- `JsonResponse<T>` - Generic response wrapper with success, data, error, and message fields
+- `ErrorDetail` - Error details with code, message, and optional details
+- Helper functions: `result_to_json`, `result_to_json_with_message`
+- Data wrappers: `ProjectListData`, `ProjectData`, `TaskListData`, `TaskData`, `SubtaskListData`, `VersionData`
+- All responses match PRD JSON specification format
+
+### Text Output Implementation
+- `format_project_list` / `format_project_details` - Project formatting
+- `format_task_list` / `format_task_details` - Task formatting with priority markers [L]/[M]/[H]
+- `format_subtask_list` - Subtask/checklist item formatting
+- `format_success` / `format_success_with_id` / `format_error` - Status message formatting
+- `format_version` - Version info formatting
+
+### Changes Made
+- Created `src/output/mod.rs`
+- Created `src/output/json.rs` with 7 tests
+- Created `src/output/text.rs` with 12 tests
+- Updated `src/main.rs` to include output module
+
+### Results
+- All 50 tests pass (19 new tests for output module)
+- Project compiles successfully
+- Clippy shows only expected dead_code warnings (CLI not yet wired up)
