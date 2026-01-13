@@ -52,6 +52,7 @@ impl<T: Serialize> JsonResponse<T> {
 
 impl<T> JsonResponse<T> {
     /// Create an error response
+    #[allow(dead_code)] // Available for external use
     pub fn error(code: impl Into<String>, message: impl Into<String>) -> Self {
         Self {
             success: false,
@@ -66,6 +67,7 @@ impl<T> JsonResponse<T> {
     }
 
     /// Create an error response with additional details
+    #[allow(dead_code)] // Available for external use
     pub fn error_with_details(
         code: impl Into<String>,
         message: impl Into<String>,
@@ -88,12 +90,16 @@ impl<T: Serialize> JsonResponse<T> {
     /// Convert response to JSON string with pretty printing
     pub fn to_json_string(&self) -> String {
         serde_json::to_string_pretty(self).unwrap_or_else(|e| {
-            format!(r#"{{"success":false,"error":{{"code":"SERIALIZATION_ERROR","message":"{}"}}}}"#, e)
+            format!(
+                r#"{{"success":false,"error":{{"code":"SERIALIZATION_ERROR","message":"{}"}}}}"#,
+                e
+            )
         })
     }
 }
 
 /// Convert a Result to a JSON response string
+#[allow(dead_code)] // Available for external use
 pub fn result_to_json<T: Serialize, E: std::fmt::Display>(result: Result<T, E>) -> String {
     match result {
         Ok(data) => JsonResponse::success(data).to_json_string(),
@@ -102,6 +108,7 @@ pub fn result_to_json<T: Serialize, E: std::fmt::Display>(result: Result<T, E>) 
 }
 
 /// Convert a Result to a JSON response string with a success message
+#[allow(dead_code)] // Available for external use
 pub fn result_to_json_with_message<T: Serialize, E: std::fmt::Display>(
     result: Result<T, E>,
     message: &str,
@@ -166,12 +173,13 @@ mod tests {
 
     #[test]
     fn test_success_with_message() {
-        let response = JsonResponse::success_with_message(
-            json!({"id": "123"}),
-            "Task created successfully",
-        );
+        let response =
+            JsonResponse::success_with_message(json!({"id": "123"}), "Task created successfully");
         assert!(response.success);
-        assert_eq!(response.message, Some("Task created successfully".to_string()));
+        assert_eq!(
+            response.message,
+            Some("Task created successfully".to_string())
+        );
     }
 
     #[test]

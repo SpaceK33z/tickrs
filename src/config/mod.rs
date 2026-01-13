@@ -59,8 +59,9 @@ impl Config {
 
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)
-                .with_context(|| format!("Failed to create config directory: {}", parent.display()))?;
+            fs::create_dir_all(parent).with_context(|| {
+                format!("Failed to create config directory: {}", parent.display())
+            })?;
         }
 
         let contents =
@@ -87,15 +88,15 @@ impl Config {
 
     /// Get the configuration file path
     pub fn config_path() -> Result<PathBuf> {
-        let config_dir = dirs::config_dir()
-            .with_context(|| "Could not determine config directory")?;
+        let config_dir =
+            dirs::config_dir().with_context(|| "Could not determine config directory")?;
         Ok(config_dir.join("tickrs").join("config.toml"))
     }
 
     /// Get the data directory path (for token storage)
     pub fn data_dir() -> Result<PathBuf> {
-        let data_dir = dirs::data_local_dir()
-            .with_context(|| "Could not determine data directory")?;
+        let data_dir =
+            dirs::data_local_dir().with_context(|| "Could not determine data directory")?;
         Ok(data_dir.join("tickrs"))
     }
 }
@@ -133,8 +134,9 @@ impl TokenStorage {
 
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
-            fs::create_dir_all(parent)
-                .with_context(|| format!("Failed to create data directory: {}", parent.display()))?;
+            fs::create_dir_all(parent).with_context(|| {
+                format!("Failed to create data directory: {}", parent.display())
+            })?;
         }
 
         // Write token to file

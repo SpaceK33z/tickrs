@@ -47,6 +47,7 @@ impl Task {
 
 /// Builder for creating new tasks
 #[derive(Default)]
+#[allow(dead_code)] // Available for external use; tested in tests
 pub struct TaskBuilder {
     project_id: String,
     title: String,
@@ -59,6 +60,7 @@ pub struct TaskBuilder {
     tags: Vec<String>,
 }
 
+#[allow(dead_code)] // Builder methods available for external use; tested
 impl TaskBuilder {
     pub fn new(project_id: impl Into<String>, title: impl Into<String>) -> Self {
         Self {

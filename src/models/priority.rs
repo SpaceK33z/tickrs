@@ -5,8 +5,9 @@ use clap::ValueEnum;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Task priority levels as used by TickTick API
-#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum, Default)]
 pub enum Priority {
+    #[default]
     None,
     Low,
     Medium,
@@ -32,12 +33,6 @@ impl Priority {
             5 => Priority::High,
             _ => Priority::None,
         }
-    }
-}
-
-impl Default for Priority {
-    fn default() -> Self {
-        Priority::None
     }
 }
 

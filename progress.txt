@@ -370,3 +370,51 @@ Implemented the subtask list command in `main.rs` as specified in PRD Phase 12.
 - Subtask list command works with both `--json` and text output
 - `ls` alias works for `list` command
 - Clippy shows only expected dead_code warnings (later phases not yet implemented)
+
+## 2026-01-14: Fixed clippy warnings to achieve zero warnings in CI (Phase 13)
+
+### What was done
+Fixed all clippy warnings to pass CI checks with `cargo clippy -- -D warnings`.
+
+### Issues Fixed
+1. **Unused imports** - Removed re-exports not used externally from:
+   - `src/api/mod.rs` - Removed `API_BASE_URL` export
+   - `src/output/mod.rs` - Removed unused `JsonResponse`, `ErrorDetail` exports
+   - `src/utils/mod.rs` - Removed unused date_parser and error re-exports
+
+2. **Dead code warnings** - Added `#[allow(dead_code)]` for public API items not yet used:
+   - `src/constants.rs` - Module-level allow for all constants
+   - `src/models/task.rs` - TaskBuilder struct and impl
+   - `src/output/mod.rs` - `is_json()` method
+   - `src/output/json.rs` - `error()`, `error_with_details()`, `result_to_json()`, `result_to_json_with_message()` functions
+   - `src/output/text.rs` - `format_error()` function
+   - `src/utils/date_parser.rs` - `InvalidTimezone`, `PastDate` variants, `parse_date_with_timezone()`, `parse_future_date()`, `local_timezone()`, `format_datetime()` functions
+   - `src/utils/error.rs` - `ErrorCode` enum, `AppError` enum and impl
+
+3. **Type complexity warning** - Added `#[allow(clippy::type_complexity)]` for OAuth client type in `src/api/auth.rs`
+
+4. **Derivable impls** - Changed manual `Default` implementations to use `#[derive(Default)]` with `#[default]` attribute:
+   - `src/models/priority.rs` - `Priority::None` as default
+   - `src/models/status.rs` - `Status::Normal` as default
+
+5. **Code formatting** - Ran `cargo fmt` to fix formatting issues
+
+### Changes Made
+- `src/api/mod.rs`: Removed unused export
+- `src/api/auth.rs`: Added clippy allow, reformatted
+- `src/output/mod.rs`: Removed unused exports, added dead_code allow
+- `src/output/json.rs`: Added dead_code allows
+- `src/output/text.rs`: Added dead_code allow
+- `src/utils/mod.rs`: Removed unused re-exports
+- `src/utils/date_parser.rs`: Added dead_code allows
+- `src/utils/error.rs`: Added dead_code allows
+- `src/models/priority.rs`: Changed to derive Default
+- `src/models/status.rs`: Changed to derive Default
+- `src/models/task.rs`: Added dead_code allow to impl
+- `src/constants.rs`: Added module-level dead_code allow
+
+### Results
+- All 82 tests pass
+- `cargo clippy -- -D warnings` passes with no errors
+- `cargo fmt --check` passes
+- PRD Phase 13 "Zero clippy warnings in CI" requirement fulfilled

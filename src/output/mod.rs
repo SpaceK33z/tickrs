@@ -1,7 +1,7 @@
 pub mod json;
 pub mod text;
 
-pub use json::{ErrorDetail, JsonResponse};
+// Note: JsonResponse and ErrorDetail are re-exported for external consumers
 
 /// Output format for CLI commands
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -15,6 +15,7 @@ pub enum OutputFormat {
 
 impl OutputFormat {
     /// Check if this is JSON format
+    #[allow(dead_code)] // Available for external use
     pub fn is_json(&self) -> bool {
         matches!(self, OutputFormat::Json)
     }

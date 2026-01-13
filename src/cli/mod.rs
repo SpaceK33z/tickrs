@@ -1,6 +1,6 @@
-pub mod root;
 pub mod project;
-pub mod task;
+pub mod root;
 pub mod subtask;
+pub mod task;
 
 pub use root::{Cli, Commands};

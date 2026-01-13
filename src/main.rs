@@ -11,7 +11,10 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use api::{AuthHandler, CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest, UpdateTaskRequest};
+use api::{
+    AuthHandler, CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest,
+    UpdateTaskRequest,
+};
 use cli::project::ProjectCommands;
 use cli::subtask::SubtaskCommands;
 use cli::task::TaskCommands;
@@ -19,7 +22,10 @@ use cli::{Cli, Commands};
 use config::{Config, TokenStorage};
 use constants::{ENV_CLIENT_ID, ENV_CLIENT_SECRET};
 use models::{Priority, Status};
-use output::json::{JsonResponse, ProjectData, ProjectListData, SubtaskListData, TaskData, TaskListData, VersionData};
+use output::json::{
+    JsonResponse, ProjectData, ProjectListData, SubtaskListData, TaskData, TaskListData,
+    VersionData,
+};
 use output::text;
 use output::OutputFormat;
 use utils::date_parser::parse_date;
@@ -72,7 +78,8 @@ async fn run_command(command: Commands, format: OutputFormat, quiet: bool) -> an
 async fn cmd_init(format: OutputFormat, quiet: bool) -> anyhow::Result<()> {
     // Check if already initialized
     if TokenStorage::exists()? {
-        let message = "Already authenticated. Use 'tickrs reset' to clear credentials and re-authenticate.";
+        let message =
+            "Already authenticated. Use 'tickrs reset' to clear credentials and re-authenticate.";
         if !quiet {
             output_message(format, message, "ALREADY_INITIALIZED")?;
         }
@@ -192,10 +199,7 @@ fn cmd_version(format: OutputFormat, quiet: bool) -> anyhow::Result<()> {
 fn output_message(format: OutputFormat, message: &str, code: &str) -> anyhow::Result<()> {
     match format {
         OutputFormat::Json => {
-            let response = JsonResponse::success_with_message(
-                serde_json::json!({}),
-                message,
-            );
+            let response = JsonResponse::success_with_message(serde_json::json!({}), message);
             println!("{}", response.to_json_string());
         }
         OutputFormat::Text => {
@@ -497,9 +501,11 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
             )
             .await
         }
-        TaskCommands::Delete { id, project_id, force } => {
-            cmd_task_delete(&id, project_id, force, format, quiet).await
-        }
+        TaskCommands::Delete {
+            id,
+            project_id,
+            force,
+        } => cmd_task_delete(&id, project_id, force, format, quiet).await,
         TaskCommands::Complete { id, project_id } => {
             cmd_task_complete(&id, project_id, format, quiet).await
         }
@@ -556,7 +562,10 @@ async fn cmd_task_list(
                 tasks.retain(|t| t.status == Status::Normal);
             }
             _ => {
-                anyhow::bail!("Invalid status filter: {}. Use 'complete' or 'incomplete'", status);
+                anyhow::bail!(
+                    "Invalid status filter: {}. Use 'complete' or 'incomplete'",
+                    status
+                );
             }
         }
     }
@@ -872,9 +881,10 @@ async fn cmd_subtask(
     quiet: bool,
 ) -> anyhow::Result<()> {
     match cmd {
-        SubtaskCommands::List { task_id, project_id } => {
-            cmd_subtask_list(&task_id, project_id, format, quiet).await
-        }
+        SubtaskCommands::List {
+            task_id,
+            project_id,
+        } => cmd_subtask_list(&task_id, project_id, format, quiet).await,
     }
 }
 

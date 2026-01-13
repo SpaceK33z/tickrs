@@ -3,9 +3,10 @@ use std::fmt;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// Task completion status as used by TickTick API
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Status {
     /// Normal/incomplete task (API value: 0)
+    #[default]
     Normal,
     /// Completed task (API value: 2)
     Complete,
@@ -31,12 +32,6 @@ impl Status {
     /// Check if the task is complete
     pub fn is_complete(self) -> bool {
         matches!(self, Status::Complete)
-    }
-}
-
-impl Default for Status {
-    fn default() -> Self {
-        Status::Normal
     }
 }
 

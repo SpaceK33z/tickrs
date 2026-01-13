@@ -80,7 +80,10 @@ impl TickTickClient {
     ///
     /// POST /project
     #[instrument(skip(self))]
-    pub async fn create_project(&self, request: &CreateProjectRequest) -> Result<Project, ApiError> {
+    pub async fn create_project(
+        &self,
+        request: &CreateProjectRequest,
+    ) -> Result<Project, ApiError> {
         debug!("Creating project: {}", request.name);
 
         self.post("/project", request).await
@@ -98,7 +101,9 @@ impl TickTickClient {
         debug!("Updating project: {}", id);
 
         if id == INBOX_PROJECT_ID {
-            return Err(ApiError::BadRequest("Cannot update INBOX project".to_string()));
+            return Err(ApiError::BadRequest(
+                "Cannot update INBOX project".to_string(),
+            ));
         }
 
         let endpoint = format!("/project/{}", id);
@@ -113,7 +118,9 @@ impl TickTickClient {
         debug!("Deleting project: {}", id);
 
         if id == INBOX_PROJECT_ID {
-            return Err(ApiError::BadRequest("Cannot delete INBOX project".to_string()));
+            return Err(ApiError::BadRequest(
+                "Cannot delete INBOX project".to_string(),
+            ));
         }
 
         let endpoint = format!("/project/{}", id);

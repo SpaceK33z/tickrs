@@ -13,13 +13,17 @@ use thiserror::Error;
 /// Errors that can occur during date parsing
 #[derive(Debug, Error)]
 pub enum DateParseError {
-    #[error("Could not parse date: '{0}'. Try formats like 'tomorrow', '2025-01-15', or 'in 3 days'.")]
+    #[error(
+        "Could not parse date: '{0}'. Try formats like 'tomorrow', '2025-01-15', or 'in 3 days'."
+    )]
     InvalidFormat(String),
 
     #[error("Invalid timezone: '{0}'")]
+    #[allow(dead_code)] // Used by parse_date_with_timezone
     InvalidTimezone(String),
 
     #[error("Date is in the past: '{0}'")]
+    #[allow(dead_code)] // Used by parse_future_date
     PastDate(String),
 }
 
@@ -79,8 +83,7 @@ pub fn parse_date(input: &str) -> Result<DateTime<Utc>, DateParseError> {
     }
 
     // Try dateparser for ISO dates and other formats
-    dateparser::parse(input)
-        .map_err(|_| DateParseError::InvalidFormat(input.to_string()))
+    dateparser::parse(input).map_err(|_| DateParseError::InvalidFormat(input.to_string()))
 }
 
 /// Parse relative time expressions like "3 days", "2 hours", "30 minutes"
@@ -112,6 +115,7 @@ fn parse_relative_time(input: &str, base: DateTime<Utc>) -> Option<DateTime<Utc>
 /// # Returns
 /// * `Ok(DateTime<Utc>)` - The parsed date converted to UTC
 /// * `Err(DateParseError)` - If parsing or timezone conversion fails
+#[allow(dead_code)] // Available for external use
 pub fn parse_date_with_timezone(
     input: &str,
     timezone: &str,
@@ -148,6 +152,7 @@ pub fn parse_date_with_timezone(
 /// # Returns
 /// * `Ok(DateTime<Utc>)` - The parsed date if it's in the future
 /// * `Err(DateParseError::PastDate)` - If the date is in the past
+#[allow(dead_code)] // Available for external use
 pub fn parse_future_date(input: &str) -> Result<DateTime<Utc>, DateParseError> {
     let date = parse_date(input)?;
 
@@ -161,6 +166,7 @@ pub fn parse_future_date(input: &str) -> Result<DateTime<Utc>, DateParseError> {
 /// Get the local timezone name
 ///
 /// Returns the system's local timezone if available, otherwise "UTC"
+#[allow(dead_code)] // Available for external use
 pub fn local_timezone() -> String {
     // Try to get the TZ environment variable first
     if let Ok(tz) = std::env::var("TZ") {
@@ -179,6 +185,7 @@ pub fn local_timezone() -> String {
 ///
 /// # Returns
 /// A formatted date string like "2025-01-15 14:00:00 UTC"
+#[allow(dead_code)] // Available for external use
 pub fn format_datetime(dt: &DateTime<Utc>, timezone: Option<&str>) -> String {
     if let Some(tz_str) = timezone {
         if let Ok(tz) = tz_str.parse::<Tz>() {
@@ -208,7 +215,10 @@ mod tests {
         let result = parse_date("2025-01-15T14:30:00Z");
         assert!(result.is_ok());
         let dt = result.unwrap();
-        assert_eq!(dt.format("%Y-%m-%dT%H:%M:%S").to_string(), "2025-01-15T14:30:00");
+        assert_eq!(
+            dt.format("%Y-%m-%dT%H:%M:%S").to_string(),
+            "2025-01-15T14:30:00"
+        );
     }
 
     #[test]

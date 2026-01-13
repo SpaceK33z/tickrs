@@ -1,7 +1,7 @@
 //! Task API endpoints for TickTick
 
 use crate::api::client::{ApiError, TickTickClient};
-use crate::models::{Task, Status};
+use crate::models::{Status, Task};
 use tracing::{debug, instrument};
 
 /// Request body for creating a task
@@ -84,7 +84,10 @@ impl TickTickClient {
     /// POST /task
     #[instrument(skip(self))]
     pub async fn create_task(&self, request: &CreateTaskRequest) -> Result<Task, ApiError> {
-        debug!("Creating task: {} in project: {}", request.title, request.project_id);
+        debug!(
+            "Creating task: {} in project: {}",
+            request.title, request.project_id
+        );
 
         self.post("/task", request).await
     }
@@ -93,7 +96,11 @@ impl TickTickClient {
     ///
     /// POST /task/{id}
     #[instrument(skip(self))]
-    pub async fn update_task(&self, task_id: &str, request: &UpdateTaskRequest) -> Result<Task, ApiError> {
+    pub async fn update_task(
+        &self,
+        task_id: &str,
+        request: &UpdateTaskRequest,
+    ) -> Result<Task, ApiError> {
         debug!("Updating task: {}", task_id);
 
         let endpoint = format!("/task/{}", task_id);

@@ -91,7 +91,9 @@ impl AuthHandler {
             // Send error response
             let response = create_error_response("CSRF token mismatch - possible security issue");
             stream.write_all(response.as_bytes())?;
-            return Err(anyhow!("CSRF token mismatch - authorization may have been tampered with"));
+            return Err(anyhow!(
+                "CSRF token mismatch - authorization may have been tampered with"
+            ));
         }
 
         // Send success response
@@ -121,13 +123,20 @@ impl AuthHandler {
     }
 
     /// Create the OAuth2 client with auth and token URLs configured
+    #[allow(clippy::type_complexity)]
     fn create_oauth_client(
         &self,
     ) -> Result<
         oauth2::Client<
             oauth2::StandardErrorResponse<oauth2::basic::BasicErrorResponseType>,
-            oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>,
-            oauth2::StandardTokenIntrospectionResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>,
+            oauth2::StandardTokenResponse<
+                oauth2::EmptyExtraTokenFields,
+                oauth2::basic::BasicTokenType,
+            >,
+            oauth2::StandardTokenIntrospectionResponse<
+                oauth2::EmptyExtraTokenFields,
+                oauth2::basic::BasicTokenType,
+            >,
             oauth2::StandardRevocableToken,
             oauth2::StandardErrorResponse<oauth2::RevocationErrorResponseType>,
             oauth2::EndpointSet,
@@ -140,16 +149,11 @@ impl AuthHandler {
         let client = BasicClient::new(ClientId::new(self.client_id.clone()))
             .set_client_secret(ClientSecret::new(self.client_secret.clone()))
             .set_auth_uri(
-                AuthUrl::new(OAUTH_AUTH_URL.to_string())
-                    .context("Invalid authorization URL")?,
+                AuthUrl::new(OAUTH_AUTH_URL.to_string()).context("Invalid authorization URL")?,
             )
-            .set_token_uri(
-                TokenUrl::new(OAUTH_TOKEN_URL.to_string())
-                    .context("Invalid token URL")?,
-            )
+            .set_token_uri(TokenUrl::new(OAUTH_TOKEN_URL.to_string()).context("Invalid token URL")?)
             .set_redirect_uri(
-                RedirectUrl::new(OAUTH_REDIRECT_URI.to_string())
-                    .context("Invalid redirect URI")?,
+                RedirectUrl::new(OAUTH_REDIRECT_URI.to_string()).context("Invalid redirect URI")?,
             );
 
         Ok(client)
@@ -174,11 +178,11 @@ fn parse_callback_request(request_line: &str) -> Result<(String, String)> {
         return Err(anyhow!("Authorization failed: {}", error_desc));
     }
 
-    let code = extract_param(path, "code")
-        .ok_or_else(|| anyhow!("No authorization code in callback"))?;
+    let code =
+        extract_param(path, "code").ok_or_else(|| anyhow!("No authorization code in callback"))?;
 
-    let state = extract_param(path, "state")
-        .ok_or_else(|| anyhow!("No state parameter in callback"))?;
+    let state =
+        extract_param(path, "state").ok_or_else(|| anyhow!("No state parameter in callback"))?;
 
     Ok((code, state))
 }

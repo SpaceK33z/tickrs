@@ -2,6 +2,9 @@
 //!
 //! Centralized constants for API URLs, defaults, and configuration values.
 
+// Allow dead code - these constants are available for public API use
+#![allow(dead_code)]
+
 /// TickTick API base URL
 pub const API_BASE_URL: &str = "https://api.ticktick.com/open/v1";
 

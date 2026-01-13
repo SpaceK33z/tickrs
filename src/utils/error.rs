@@ -10,6 +10,7 @@ use thiserror::Error;
 /// Error codes for JSON output
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[allow(dead_code)] // Available for external use and JSON output
 pub enum ErrorCode {
     /// Authentication required - user needs to run init
     AuthRequired,
@@ -59,6 +60,7 @@ impl fmt::Display for ErrorCode {
 
 /// Application-level errors with user-friendly messages
 #[derive(Debug, Error)]
+#[allow(dead_code)] // Available for external use
 pub enum AppError {
     #[error("Authentication required. Run 'tickrs init' to authenticate.")]
     AuthRequired,
@@ -97,6 +99,7 @@ pub enum AppError {
     Other(String),
 }
 
+#[allow(dead_code)] // Methods available for external use
 impl AppError {
     /// Get the error code for this error
     pub fn code(&self) -> ErrorCode {

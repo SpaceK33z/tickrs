@@ -36,7 +36,10 @@ pub fn format_project_details(project: &Project) -> String {
     }
     output.push_str(&format!("View Mode: {}\n", project.view_mode));
     output.push_str(&format!("Kind: {}\n", project.kind));
-    output.push_str(&format!("Closed: {}\n", if project.closed { "yes" } else { "no" }));
+    output.push_str(&format!(
+        "Closed: {}\n",
+        if project.closed { "yes" } else { "no" }
+    ));
     if let Some(ref group_id) = project.group_id {
         output.push_str(&format!("Group ID: {}\n", group_id));
     }
@@ -62,7 +65,8 @@ pub fn format_task_list(tasks: &[Task]) -> String {
 fn format_task_line(task: &Task) -> String {
     let status_marker = if task.is_complete() { "[x]" } else { "[ ]" };
     let priority = format_priority_marker(&task.priority);
-    let due = task.due_date
+    let due = task
+        .due_date
         .map(|d| format!(" (due: {})", d.format("%Y-%m-%d")))
         .unwrap_or_default();
 
@@ -92,7 +96,10 @@ pub fn format_task_details(task: &Task) -> String {
         output.push_str(&format!("Due: {} UTC\n", due.format("%Y-%m-%d %H:%M:%S")));
     }
     if let Some(ref start) = task.start_date {
-        output.push_str(&format!("Start: {} UTC\n", start.format("%Y-%m-%d %H:%M:%S")));
+        output.push_str(&format!(
+            "Start: {} UTC\n",
+            start.format("%Y-%m-%d %H:%M:%S")
+        ));
     }
     if task.is_all_day {
         output.push_str("All Day: yes\n");
@@ -151,6 +158,7 @@ pub fn format_success_with_id(message: &str, id: &str) -> String {
 }
 
 /// Format an error message
+#[allow(dead_code)] // Available for external use
 pub fn format_error(message: &str) -> String {
     format!("Error: {}", message)
 }

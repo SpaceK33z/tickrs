@@ -46,8 +46,7 @@ pub enum ApiError {
 impl TickTickClient {
     /// Create a new client with the stored token
     pub fn new() -> Result<Self> {
-        let token = TokenStorage::load()?
-            .ok_or(ApiError::NotAuthenticated)?;
+        let token = TokenStorage::load()?.ok_or(ApiError::NotAuthenticated)?;
 
         Self::with_token(token)
     }
@@ -144,8 +143,9 @@ impl TickTickClient {
             StatusCode::OK | StatusCode::CREATED => {
                 let text = response.text().await?;
                 debug!("Response: {}", &text[..text.len().min(500)]);
-                serde_json::from_str(&text)
-                    .map_err(|e| ApiError::ParseError(format!("{}: {}", e, &text[..text.len().min(200)])))
+                serde_json::from_str(&text).map_err(|e| {
+                    ApiError::ParseError(format!("{}: {}", e, &text[..text.len().min(200)]))
+                })
             }
             StatusCode::UNAUTHORIZED => Err(ApiError::Unauthorized),
             StatusCode::NOT_FOUND => Err(ApiError::NotFound(url)),
