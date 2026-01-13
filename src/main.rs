@@ -11,11 +11,12 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use api::AuthHandler;
+use api::{AuthHandler, CreateProjectRequest, TickTickClient, UpdateProjectRequest};
+use cli::project::ProjectCommands;
 use cli::{Cli, Commands};
 use config::{Config, TokenStorage};
 use constants::{ENV_CLIENT_ID, ENV_CLIENT_SECRET};
-use output::json::{JsonResponse, VersionData};
+use output::json::{JsonResponse, ProjectData, ProjectListData, VersionData};
 use output::text;
 use output::OutputFormat;
 
@@ -57,10 +58,7 @@ async fn run_command(command: Commands, format: OutputFormat, quiet: bool) -> an
         Commands::Init => cmd_init(format, quiet).await,
         Commands::Reset { force } => cmd_reset(force, format, quiet),
         Commands::Version => cmd_version(format, quiet),
-        Commands::Project(_) => {
-            // TODO: Implement in Phase 10
-            anyhow::bail!("Project commands not yet implemented")
-        }
+        Commands::Project(cmd) => cmd_project(cmd, format, quiet).await,
         Commands::Task(_) => {
             // TODO: Implement in Phase 11
             anyhow::bail!("Task commands not yet implemented")
@@ -210,5 +208,244 @@ fn output_message(format: OutputFormat, message: &str, code: &str) -> anyhow::Re
             }
         }
     }
+    Ok(())
+}
+
+/// Handle project commands
+async fn cmd_project(
+    cmd: ProjectCommands,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    match cmd {
+        ProjectCommands::List => cmd_project_list(format, quiet).await,
+        ProjectCommands::Show { id } => cmd_project_show(&id, format, quiet).await,
+        ProjectCommands::Use { name_or_id } => cmd_project_use(&name_or_id, format, quiet).await,
+        ProjectCommands::Create {
+            name,
+            color,
+            view_mode,
+            kind,
+        } => cmd_project_create(&name, color, view_mode, kind, format, quiet).await,
+        ProjectCommands::Update {
+            id,
+            name,
+            color,
+            closed,
+        } => cmd_project_update(&id, name, color, closed, format, quiet).await,
+        ProjectCommands::Delete { id, force } => {
+            cmd_project_delete(&id, force, format, quiet).await
+        }
+    }
+}
+
+/// List all projects
+async fn cmd_project_list(format: OutputFormat, quiet: bool) -> anyhow::Result<()> {
+    let client = TickTickClient::new()?;
+    let projects = client.list_projects().await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = ProjectListData { projects };
+            let response = JsonResponse::success(data);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_project_list(&projects));
+        }
+    }
+
+    Ok(())
+}
+
+/// Show project details
+async fn cmd_project_show(id: &str, format: OutputFormat, quiet: bool) -> anyhow::Result<()> {
+    let client = TickTickClient::new()?;
+    let project = client.get_project(id).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = ProjectData { project };
+            let response = JsonResponse::success(data);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_project_details(&project));
+        }
+    }
+
+    Ok(())
+}
+
+/// Set default project for commands
+async fn cmd_project_use(
+    name_or_id: &str,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let client = TickTickClient::new()?;
+    let projects = client.list_projects().await?;
+
+    // Find project by name or ID
+    let project = projects
+        .iter()
+        .find(|p| p.id == name_or_id || p.name.eq_ignore_ascii_case(name_or_id))
+        .ok_or_else(|| anyhow::anyhow!("Project not found: {}", name_or_id))?;
+
+    // Update config with the project ID
+    let mut config = Config::load()?;
+    config.default_project_id = Some(project.id.clone());
+    config.save()?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    let message = format!("Default project set to '{}'", project.name);
+    match format {
+        OutputFormat::Json => {
+            let data = ProjectData {
+                project: project.clone(),
+            };
+            let response = JsonResponse::success_with_message(data, &message);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success(&message));
+        }
+    }
+
+    Ok(())
+}
+
+/// Create a new project
+async fn cmd_project_create(
+    name: &str,
+    color: Option<String>,
+    view_mode: Option<String>,
+    kind: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let client = TickTickClient::new()?;
+
+    let request = CreateProjectRequest {
+        name: name.to_string(),
+        color,
+        view_mode,
+        kind,
+    };
+
+    let project = client.create_project(&request).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = ProjectData { project };
+            let response = JsonResponse::success_with_message(data, "Project created successfully");
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!(
+                "{}",
+                text::format_success_with_id("Project created", &project.id)
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Update an existing project
+async fn cmd_project_update(
+    id: &str,
+    name: Option<String>,
+    color: Option<String>,
+    closed: Option<bool>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let client = TickTickClient::new()?;
+
+    let request = UpdateProjectRequest {
+        name,
+        color,
+        closed,
+        view_mode: None,
+    };
+
+    let project = client.update_project(id, &request).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = ProjectData { project };
+            let response = JsonResponse::success_with_message(data, "Project updated successfully");
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!(
+                "{}",
+                text::format_success_with_id("Project updated", &project.id)
+            );
+        }
+    }
+
+    Ok(())
+}
+
+/// Delete a project
+async fn cmd_project_delete(
+    id: &str,
+    force: bool,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    // Confirm unless --force is specified
+    if !force && format == OutputFormat::Text {
+        print!("Delete project '{}'? [y/N] ", id);
+        std::io::Write::flush(&mut std::io::stdout())?;
+
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input)?;
+
+        if !input.trim().eq_ignore_ascii_case("y") {
+            println!("Aborted.");
+            return Ok(());
+        }
+    }
+
+    let client = TickTickClient::new()?;
+    client.delete_project(id).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    let message = "Project deleted successfully";
+    match format {
+        OutputFormat::Json => {
+            let response = JsonResponse::success_with_message(serde_json::json!({}), message);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success(message));
+        }
+    }
+
     Ok(())
 }

@@ -207,3 +207,59 @@ Implemented the CLI root commands (init, reset, version) as specified in PRD Pha
   - `tickrs reset --force` handles no-config case
   - `tickrs --help` shows all commands
 - Clippy shows only expected dead_code warnings (later phases not yet implemented)
+
+## 2026-01-14: Implemented Phase 10 - CLI Project Commands
+
+### What was done
+Implemented all project CLI commands in `main.rs` as specified in PRD Phase 10.
+
+### Commands Implemented
+1. **`project list`** (alias: `ls`)
+   - Lists all projects from TickTick API (including INBOX)
+   - Supports `--json` output for machine consumption
+   - Text output shows ID, name, and color
+
+2. **`project show <id>`**
+   - Shows detailed information about a specific project
+   - Supports `--json` output
+   - Text output shows all project fields
+
+3. **`project use <name-or-id>`**
+   - Sets the default project for subsequent commands
+   - Finds project by ID or name (case-insensitive)
+   - Saves selection to config file
+
+4. **`project create`**
+   - Creates a new project with specified options
+   - Flags: `--name` (required), `--color`, `--view-mode`, `--kind`
+   - Returns created project with ID
+
+5. **`project update <id>`**
+   - Updates an existing project
+   - Flags: `--name`, `--color`, `--closed`
+   - Returns updated project
+
+6. **`project delete <id>`**
+   - Deletes a project (with confirmation prompt)
+   - Use `--force` to skip confirmation
+   - Works with `--json` flag to skip prompt
+
+### Changes Made
+- `src/main.rs`:
+  - Added imports for `CreateProjectRequest`, `UpdateProjectRequest`, `TickTickClient`
+  - Added imports for `ProjectData`, `ProjectListData` output wrappers
+  - Wired up `Commands::Project` to `cmd_project` handler
+  - Implemented `cmd_project` dispatcher function
+  - Implemented `cmd_project_list` - lists all projects
+  - Implemented `cmd_project_show` - shows project details
+  - Implemented `cmd_project_use` - sets default project
+  - Implemented `cmd_project_create` - creates new project
+  - Implemented `cmd_project_update` - updates existing project
+  - Implemented `cmd_project_delete` - deletes project with confirmation
+
+### Results
+- All 82 tests pass
+- Project compiles successfully
+- All project commands work with both `--json` and text output
+- `ls` alias works for `list` command
+- Clippy shows only expected dead_code warnings (task/subtask commands not yet implemented)

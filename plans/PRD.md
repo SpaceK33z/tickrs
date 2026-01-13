@@ -822,43 +822,43 @@ Tags: urgent, work
 ### Phase 10: CLI - Project Commands
 **Goal:** Implement all project subcommands
 
-- [ ] Implement `cli/project.rs`
-  - [ ] Define `ProjectCommands` enum
-  - [ ] **`project list`**
-    - [ ] Call `api.list_projects()`
-    - [ ] Support `--json` output
-    - [ ] Text: display as table with ID, name, color
-  - [ ] **`project show <id>`**
-    - [ ] Positional `<id>` argument
-    - [ ] Call `api.get_project(id)`
-    - [ ] Support `--json` output
-    - [ ] Text: display all project fields
-  - [ ] **`project use <name-or-id>`**
-    - [ ] Find project by name or ID
-    - [ ] Update config.default_project_id
-    - [ ] Save config
-    - [ ] Output success message
-  - [ ] **`project create`**
-    - [ ] Flags: `--name`, `--color`, `--view-mode`, `--kind`
-    - [ ] Build Project struct
-    - [ ] Call `api.create_project()`
-    - [ ] Output created project
-  - [ ] **`project update <id>`**
-    - [ ] Flags: `--name`, `--color`, `--closed`
-    - [ ] Get existing project, merge changes
-    - [ ] Call `api.update_project()`
-    - [ ] Output updated project
-  - [ ] **`project delete <id>`**
-    - [ ] Confirm deletion (skip with --force)
-    - [ ] Call `api.delete_project(id)`
-    - [ ] Output success message
-- [ ] Add command aliases (e.g., `ls` for list)
+- [x] Implement `cli/project.rs`
+  - [x] Define `ProjectCommands` enum
+  - [x] **`project list`**
+    - [x] Call `api.list_projects()`
+    - [x] Support `--json` output
+    - [x] Text: display as table with ID, name, color
+  - [x] **`project show <id>`**
+    - [x] Positional `<id>` argument
+    - [x] Call `api.get_project(id)`
+    - [x] Support `--json` output
+    - [x] Text: display all project fields
+  - [x] **`project use <name-or-id>`**
+    - [x] Find project by name or ID
+    - [x] Update config.default_project_id
+    - [x] Save config
+    - [x] Output success message
+  - [x] **`project create`**
+    - [x] Flags: `--name`, `--color`, `--view-mode`, `--kind`
+    - [x] Build Project struct
+    - [x] Call `api.create_project()`
+    - [x] Output created project
+  - [x] **`project update <id>`**
+    - [x] Flags: `--name`, `--color`, `--closed`
+    - [x] Get existing project, merge changes
+    - [x] Call `api.update_project()`
+    - [x] Output updated project
+  - [x] **`project delete <id>`**
+    - [x] Confirm deletion (skip with --force)
+    - [x] Call `api.delete_project(id)`
+    - [x] Output success message
+- [x] Add command aliases (e.g., `ls` for list)
 - [ ] Write CLI integration tests for each command
 
 **Deliverables:**
-- All project commands functional
-- JSON output works for all commands
-- Error handling for missing projects
+- [x] All project commands functional
+- [x] JSON output works for all commands
+- [x] Error handling for missing projects
 
 ---
 
