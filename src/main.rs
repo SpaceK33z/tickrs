@@ -13,12 +13,13 @@ use clap::Parser;
 
 use api::{AuthHandler, CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest, UpdateTaskRequest};
 use cli::project::ProjectCommands;
+use cli::subtask::SubtaskCommands;
 use cli::task::TaskCommands;
 use cli::{Cli, Commands};
 use config::{Config, TokenStorage};
 use constants::{ENV_CLIENT_ID, ENV_CLIENT_SECRET};
 use models::{Priority, Status};
-use output::json::{JsonResponse, ProjectData, ProjectListData, TaskData, TaskListData, VersionData};
+use output::json::{JsonResponse, ProjectData, ProjectListData, SubtaskListData, TaskData, TaskListData, VersionData};
 use output::text;
 use output::OutputFormat;
 use utils::date_parser::parse_date;
@@ -63,10 +64,7 @@ async fn run_command(command: Commands, format: OutputFormat, quiet: bool) -> an
         Commands::Version => cmd_version(format, quiet),
         Commands::Project(cmd) => cmd_project(cmd, format, quiet).await,
         Commands::Task(cmd) => cmd_task(cmd, format, quiet).await,
-        Commands::Subtask(_) => {
-            // TODO: Implement in Phase 12
-            anyhow::bail!("Subtask commands not yet implemented")
-        }
+        Commands::Subtask(cmd) => cmd_subtask(cmd, format, quiet).await,
     }
 }
 
@@ -865,4 +863,49 @@ fn parse_task_dates(
     };
 
     Ok((start_date, due_date))
+}
+
+/// Handle subtask commands
+async fn cmd_subtask(
+    cmd: SubtaskCommands,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    match cmd {
+        SubtaskCommands::List { task_id, project_id } => {
+            cmd_subtask_list(&task_id, project_id, format, quiet).await
+        }
+    }
+}
+
+/// List subtasks (checklist items) for a task
+async fn cmd_subtask_list(
+    task_id: &str,
+    project_id: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+    let client = TickTickClient::new()?;
+    let task = client.get_task(&project_id, task_id).await?;
+
+    let subtasks = task.items;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let count = subtasks.len();
+            let data = SubtaskListData { subtasks, count };
+            let response = JsonResponse::success(data);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_subtask_list(&subtasks));
+        }
+    }
+
+    Ok(())
 }

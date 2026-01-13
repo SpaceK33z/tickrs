@@ -928,22 +928,22 @@ Tags: urgent, work
 ### Phase 12: CLI - Subtask Commands
 **Goal:** Implement subtask listing and management
 
-- [ ] Implement `cli/subtask.rs`
-  - [ ] Define `SubtaskCommands` enum
-  - [ ] **`subtask list <task-id>`**
-    - [ ] Optional `--project-id`
-    - [ ] Call `api.get_task()` to get task with items
-    - [ ] Extract `items` (checklist)
-    - [ ] Support `--json` output
-    - [ ] Text: display as table with ID, title, status
-- [ ] Note: Subtask create/update/delete would require full task update
+- [x] Implement `cli/subtask.rs`
+  - [x] Define `SubtaskCommands` enum
+  - [x] **`subtask list <task-id>`**
+    - [x] Optional `--project-id`
+    - [x] Call `api.get_task()` to get task with items
+    - [x] Extract `items` (checklist)
+    - [x] Support `--json` output
+    - [x] Text: display as table with ID, title, status
+- [x] Note: Subtask create/update/delete would require full task update
   - [ ] Document this limitation in README
   - [ ] Optionally implement as task update with modified items array
 - [ ] Write integration tests
 
 **Deliverables:**
-- Subtask listing works
-- JSON output includes all subtask fields
+- [x] Subtask listing works
+- [x] JSON output includes all subtask fields
 
 ---
 

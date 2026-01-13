@@ -338,3 +338,35 @@ Implemented all task CLI commands in `main.rs` as specified in PRD Phase 11.
 - `ls` alias works for `list` command, `add` alias works for `create`
 - Date parsing integrates with natural language support
 - Clippy shows only expected dead_code warnings (subtask commands not yet implemented)
+
+## 2026-01-14: Implemented Phase 12 - CLI Subtask Commands
+
+### What was done
+Implemented the subtask list command in `main.rs` as specified in PRD Phase 12.
+
+### Commands Implemented
+1. **`subtask list <task-id>`** (alias: `ls`)
+   - Lists all subtasks (checklist items) for a given task
+   - Optional `--project-id` or uses default from config
+   - Supports `--json` output
+   - Text output shows checkbox status and title for each subtask
+
+### Key Features
+- **Default Project Support**: Uses the default project from config if `--project-id` is not specified
+- **JSON Output**: Returns structured JSON with subtasks array and count
+- **Text Output**: Displays human-readable list with status markers [x]/[ ]
+
+### Changes Made
+- `src/main.rs`:
+  - Added import for `SubtaskCommands`
+  - Added import for `SubtaskListData` output wrapper
+  - Wired up `Commands::Subtask` to `cmd_subtask` handler
+  - Implemented `cmd_subtask` dispatcher function
+  - Implemented `cmd_subtask_list` - lists subtasks for a task
+
+### Results
+- All 82 tests pass
+- Project compiles successfully
+- Subtask list command works with both `--json` and text output
+- `ls` alias works for `list` command
+- Clippy shows only expected dead_code warnings (later phases not yet implemented)
