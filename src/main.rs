@@ -11,14 +11,17 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use api::{AuthHandler, CreateProjectRequest, TickTickClient, UpdateProjectRequest};
+use api::{AuthHandler, CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest, UpdateTaskRequest};
 use cli::project::ProjectCommands;
+use cli::task::TaskCommands;
 use cli::{Cli, Commands};
 use config::{Config, TokenStorage};
 use constants::{ENV_CLIENT_ID, ENV_CLIENT_SECRET};
-use output::json::{JsonResponse, ProjectData, ProjectListData, VersionData};
+use models::{Priority, Status};
+use output::json::{JsonResponse, ProjectData, ProjectListData, TaskData, TaskListData, VersionData};
 use output::text;
 use output::OutputFormat;
+use utils::date_parser::parse_date;
 
 /// Application name
 const APP_NAME: &str = env!("CARGO_PKG_NAME");
@@ -59,10 +62,7 @@ async fn run_command(command: Commands, format: OutputFormat, quiet: bool) -> an
         Commands::Reset { force } => cmd_reset(force, format, quiet),
         Commands::Version => cmd_version(format, quiet),
         Commands::Project(cmd) => cmd_project(cmd, format, quiet).await,
-        Commands::Task(_) => {
-            // TODO: Implement in Phase 11
-            anyhow::bail!("Task commands not yet implemented")
-        }
+        Commands::Task(cmd) => cmd_task(cmd, format, quiet).await,
         Commands::Subtask(_) => {
             // TODO: Implement in Phase 12
             anyhow::bail!("Subtask commands not yet implemented")
@@ -448,4 +448,421 @@ async fn cmd_project_delete(
     }
 
     Ok(())
+}
+
+/// Handle task commands
+async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyhow::Result<()> {
+    match cmd {
+        TaskCommands::List {
+            project_id,
+            priority,
+            tag,
+            status,
+        } => cmd_task_list(project_id, priority, tag, status, format, quiet).await,
+        TaskCommands::Show { id, project_id } => {
+            cmd_task_show(&id, project_id, format, quiet).await
+        }
+        TaskCommands::Create {
+            title,
+            project_id,
+            content,
+            priority,
+            tags,
+            date,
+            start,
+            due,
+            all_day,
+            timezone,
+        } => {
+            cmd_task_create(
+                &title, project_id, content, priority, tags, date, start, due, all_day, timezone,
+                format, quiet,
+            )
+            .await
+        }
+        TaskCommands::Update {
+            id,
+            project_id,
+            title,
+            content,
+            priority,
+            tags,
+            date,
+            start,
+            due,
+            all_day,
+            timezone,
+        } => {
+            cmd_task_update(
+                &id, project_id, title, content, priority, tags, date, start, due, all_day,
+                timezone, format, quiet,
+            )
+            .await
+        }
+        TaskCommands::Delete { id, project_id, force } => {
+            cmd_task_delete(&id, project_id, force, format, quiet).await
+        }
+        TaskCommands::Complete { id, project_id } => {
+            cmd_task_complete(&id, project_id, format, quiet).await
+        }
+        TaskCommands::Uncomplete { id, project_id } => {
+            cmd_task_uncomplete(&id, project_id, format, quiet).await
+        }
+    }
+}
+
+/// Get the project ID from argument or config default
+fn get_project_id(project_id: Option<String>) -> anyhow::Result<String> {
+    if let Some(id) = project_id {
+        return Ok(id);
+    }
+
+    let config = Config::load()?;
+    config.default_project_id.ok_or_else(|| {
+        anyhow::anyhow!(
+            "No project specified. Use --project-id or set a default with 'tickrs project use <name>'"
+        )
+    })
+}
+
+/// List tasks in a project
+async fn cmd_task_list(
+    project_id: Option<String>,
+    priority_filter: Option<Priority>,
+    tag_filter: Option<String>,
+    status_filter: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+    let client = TickTickClient::new()?;
+    let mut tasks = client.list_tasks(&project_id).await?;
+
+    // Apply filters
+    if let Some(priority) = priority_filter {
+        tasks.retain(|t| t.priority == priority);
+    }
+
+    if let Some(ref tag) = tag_filter {
+        let tag_lower = tag.to_lowercase();
+        tasks.retain(|t| t.tags.iter().any(|tt| tt.to_lowercase() == tag_lower));
+    }
+
+    if let Some(ref status) = status_filter {
+        let status_lower = status.to_lowercase();
+        match status_lower.as_str() {
+            "complete" | "completed" | "done" => {
+                tasks.retain(|t| t.status == Status::Complete);
+            }
+            "incomplete" | "pending" | "open" => {
+                tasks.retain(|t| t.status == Status::Normal);
+            }
+            _ => {
+                anyhow::bail!("Invalid status filter: {}. Use 'complete' or 'incomplete'", status);
+            }
+        }
+    }
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let count = tasks.len();
+            let data = TaskListData { tasks, count };
+            let response = JsonResponse::success(data);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_task_list(&tasks));
+        }
+    }
+
+    Ok(())
+}
+
+/// Show task details
+async fn cmd_task_show(
+    task_id: &str,
+    project_id: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+    let client = TickTickClient::new()?;
+    let task = client.get_task(&project_id, task_id).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = TaskData { task };
+            let response = JsonResponse::success(data);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_task_details(&task));
+        }
+    }
+
+    Ok(())
+}
+
+/// Create a new task
+#[allow(clippy::too_many_arguments)]
+async fn cmd_task_create(
+    title: &str,
+    project_id: Option<String>,
+    content: Option<String>,
+    priority: Option<Priority>,
+    tags: Option<String>,
+    date: Option<String>,
+    start: Option<String>,
+    due: Option<String>,
+    all_day: bool,
+    timezone: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+
+    // Parse dates
+    let (start_date, due_date) = parse_task_dates(date, start, due)?;
+
+    // Parse tags
+    let tags_vec = tags.map(|t| t.split(',').map(|s| s.trim().to_string()).collect());
+
+    let request = CreateTaskRequest {
+        title: title.to_string(),
+        project_id: project_id.clone(),
+        content,
+        is_all_day: if all_day { Some(true) } else { None },
+        start_date,
+        due_date,
+        priority: priority.map(|p| p.to_api_value()),
+        time_zone: timezone,
+        tags: tags_vec,
+    };
+
+    let client = TickTickClient::new()?;
+    let task = client.create_task(&request).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = TaskData { task };
+            let response = JsonResponse::success_with_message(data, "Task created successfully");
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success_with_id("Task created", &task.id));
+        }
+    }
+
+    Ok(())
+}
+
+/// Update an existing task
+#[allow(clippy::too_many_arguments)]
+async fn cmd_task_update(
+    task_id: &str,
+    project_id: Option<String>,
+    title: Option<String>,
+    content: Option<String>,
+    priority: Option<Priority>,
+    tags: Option<String>,
+    date: Option<String>,
+    start: Option<String>,
+    due: Option<String>,
+    all_day: Option<bool>,
+    timezone: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+
+    // Parse dates
+    let (start_date, due_date) = parse_task_dates(date, start, due)?;
+
+    // Parse tags
+    let tags_vec = tags.map(|t| t.split(',').map(|s| s.trim().to_string()).collect());
+
+    let request = UpdateTaskRequest {
+        id: task_id.to_string(),
+        project_id: project_id.clone(),
+        title,
+        content,
+        is_all_day: all_day,
+        start_date,
+        due_date,
+        priority: priority.map(|p| p.to_api_value()),
+        time_zone: timezone,
+        tags: tags_vec,
+        status: None,
+    };
+
+    let client = TickTickClient::new()?;
+    let task = client.update_task(task_id, &request).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = TaskData { task };
+            let response = JsonResponse::success_with_message(data, "Task updated successfully");
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success_with_id("Task updated", &task.id));
+        }
+    }
+
+    Ok(())
+}
+
+/// Delete a task
+async fn cmd_task_delete(
+    task_id: &str,
+    project_id: Option<String>,
+    force: bool,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+
+    // Confirm unless --force is specified
+    if !force && format == OutputFormat::Text {
+        print!("Delete task '{}'? [y/N] ", task_id);
+        std::io::Write::flush(&mut std::io::stdout())?;
+
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input)?;
+
+        if !input.trim().eq_ignore_ascii_case("y") {
+            println!("Aborted.");
+            return Ok(());
+        }
+    }
+
+    let client = TickTickClient::new()?;
+    client.delete_task(&project_id, task_id).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    let message = "Task deleted successfully";
+    match format {
+        OutputFormat::Json => {
+            let response = JsonResponse::success_with_message(serde_json::json!({}), message);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success(message));
+        }
+    }
+
+    Ok(())
+}
+
+/// Mark a task as complete
+async fn cmd_task_complete(
+    task_id: &str,
+    project_id: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+
+    let client = TickTickClient::new()?;
+    client.complete_task(&project_id, task_id).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    let message = "Task marked as complete";
+    match format {
+        OutputFormat::Json => {
+            let response = JsonResponse::success_with_message(serde_json::json!({}), message);
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success(message));
+        }
+    }
+
+    Ok(())
+}
+
+/// Mark a task as incomplete
+async fn cmd_task_uncomplete(
+    task_id: &str,
+    project_id: Option<String>,
+    format: OutputFormat,
+    quiet: bool,
+) -> anyhow::Result<()> {
+    let project_id = get_project_id(project_id)?;
+
+    let client = TickTickClient::new()?;
+    let task = client.uncomplete_task(&project_id, task_id).await?;
+
+    if quiet {
+        return Ok(());
+    }
+
+    match format {
+        OutputFormat::Json => {
+            let data = TaskData { task };
+            let response = JsonResponse::success_with_message(data, "Task marked as incomplete");
+            println!("{}", response.to_json_string());
+        }
+        OutputFormat::Text => {
+            println!("{}", text::format_success("Task marked as incomplete"));
+        }
+    }
+
+    Ok(())
+}
+
+/// Parse task dates from various input formats
+///
+/// If `date` is provided, it sets both start and due date.
+/// Otherwise, `start` and `due` can be specified separately.
+fn parse_task_dates(
+    date: Option<String>,
+    start: Option<String>,
+    due: Option<String>,
+) -> anyhow::Result<(Option<String>, Option<String>)> {
+    // If natural language date is provided, use it for both start and due
+    if let Some(date_str) = date {
+        let dt = parse_date(&date_str)?;
+        let formatted = dt.format("%Y-%m-%dT%H:%M:%S%z").to_string();
+        return Ok((Some(formatted.clone()), Some(formatted)));
+    }
+
+    // Parse individual dates
+    let start_date = if let Some(start_str) = start {
+        let dt = parse_date(&start_str)?;
+        Some(dt.format("%Y-%m-%dT%H:%M:%S%z").to_string())
+    } else {
+        None
+    };
+
+    let due_date = if let Some(due_str) = due {
+        let dt = parse_date(&due_str)?;
+        Some(dt.format("%Y-%m-%dT%H:%M:%S%z").to_string())
+    } else {
+        None
+    };
+
+    Ok((start_date, due_date))
 }

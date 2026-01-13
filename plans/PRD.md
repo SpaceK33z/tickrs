@@ -865,63 +865,63 @@ Tags: urgent, work
 ### Phase 11: CLI - Task Commands
 **Goal:** Implement all task subcommands
 
-- [ ] Implement `cli/task.rs`
-  - [ ] Define `TaskCommands` enum
-  - [ ] **`task list`**
-    - [ ] Optional `--project-id` or use default from config
-    - [ ] Optional filters: `--priority`, `--tag`, `--status`
-    - [ ] Call `api.list_tasks(project_id)`
-    - [ ] Apply filters locally
-    - [ ] Support `--json` output
-    - [ ] Text: display as table with ID, title, status, priority, due
-  - [ ] **`task show <id>`**
-    - [ ] Positional `<id>` argument
-    - [ ] Optional `--project-id` or use default
-    - [ ] Call `api.get_task(project_id, id)`
-    - [ ] Support `--json` output
-    - [ ] Text: display all task fields including subtasks
-  - [ ] **`task create`**
-    - [ ] Required: `--title`
-    - [ ] Optional flags:
-      - [ ] `--project-id` (or use default)
-      - [ ] `--content` (description)
-      - [ ] `--priority <none|low|medium|high>`
-      - [ ] `--tags <tag1,tag2>`
-      - [ ] `--date <natural-language>` (start + due)
-      - [ ] `--start <ISO-8601>`
-      - [ ] `--due <ISO-8601>`
-      - [ ] `--all-day`
-      - [ ] `--timezone`
-    - [ ] Parse date with date_parser
-    - [ ] Build Task struct
-    - [ ] Call `api.create_task()`
-    - [ ] Output created task
-  - [ ] **`task update <id>`**
-    - [ ] Same flags as create (except --title is optional)
-    - [ ] Get existing task, merge changes
-    - [ ] Call `api.update_task()`
-    - [ ] Output updated task
-  - [ ] **`task delete <id>`**
-    - [ ] Optional `--project-id`
-    - [ ] Confirm deletion (skip with --force)
-    - [ ] Call `api.delete_task()`
-    - [ ] Output success message
-  - [ ] **`task complete <id>`**
-    - [ ] Optional `--project-id`
-    - [ ] Call `api.complete_task()`
-    - [ ] Output success message
-  - [ ] **`task uncomplete <id>`**
-    - [ ] Optional `--project-id`
-    - [ ] Call `api.uncomplete_task()`
-    - [ ] Output success message
-- [ ] Add command aliases (e.g., `add` for create)
+- [x] Implement `cli/task.rs`
+  - [x] Define `TaskCommands` enum
+  - [x] **`task list`**
+    - [x] Optional `--project-id` or use default from config
+    - [x] Optional filters: `--priority`, `--tag`, `--status`
+    - [x] Call `api.list_tasks(project_id)`
+    - [x] Apply filters locally
+    - [x] Support `--json` output
+    - [x] Text: display as table with ID, title, status, priority, due
+  - [x] **`task show <id>`**
+    - [x] Positional `<id>` argument
+    - [x] Optional `--project-id` or use default
+    - [x] Call `api.get_task(project_id, id)`
+    - [x] Support `--json` output
+    - [x] Text: display all task fields including subtasks
+  - [x] **`task create`**
+    - [x] Required: `--title`
+    - [x] Optional flags:
+      - [x] `--project-id` (or use default)
+      - [x] `--content` (description)
+      - [x] `--priority <none|low|medium|high>`
+      - [x] `--tags <tag1,tag2>`
+      - [x] `--date <natural-language>` (start + due)
+      - [x] `--start <ISO-8601>`
+      - [x] `--due <ISO-8601>`
+      - [x] `--all-day`
+      - [x] `--timezone`
+    - [x] Parse date with date_parser
+    - [x] Build Task struct
+    - [x] Call `api.create_task()`
+    - [x] Output created task
+  - [x] **`task update <id>`**
+    - [x] Same flags as create (except --title is optional)
+    - [x] Get existing task, merge changes
+    - [x] Call `api.update_task()`
+    - [x] Output updated task
+  - [x] **`task delete <id>`**
+    - [x] Optional `--project-id`
+    - [x] Confirm deletion (skip with --force)
+    - [x] Call `api.delete_task()`
+    - [x] Output success message
+  - [x] **`task complete <id>`**
+    - [x] Optional `--project-id`
+    - [x] Call `api.complete_task()`
+    - [x] Output success message
+  - [x] **`task uncomplete <id>`**
+    - [x] Optional `--project-id`
+    - [x] Call `api.uncomplete_task()`
+    - [x] Output success message
+- [x] Add command aliases (e.g., `add` for create)
 - [ ] Write CLI integration tests
 
 **Deliverables:**
-- All task CRUD operations work
-- Date parsing integrates correctly
-- Filters work as expected
-- JSON output for all commands
+- [x] All task CRUD operations work
+- [x] Date parsing integrates correctly
+- [x] Filters work as expected
+- [x] JSON output for all commands
 
 ---
 

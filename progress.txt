@@ -263,3 +263,78 @@ Implemented all project CLI commands in `main.rs` as specified in PRD Phase 10.
 - All project commands work with both `--json` and text output
 - `ls` alias works for `list` command
 - Clippy shows only expected dead_code warnings (task/subtask commands not yet implemented)
+
+## 2026-01-14: Implemented Phase 11 - CLI Task Commands
+
+### What was done
+Implemented all task CLI commands in `main.rs` as specified in PRD Phase 11.
+
+### Commands Implemented
+1. **`task list`** (alias: `ls`)
+   - Lists all tasks in a project
+   - Optional `--project-id` or uses default from config
+   - Optional filters: `--priority`, `--tag`, `--status`
+   - Supports `--json` output
+   - Text output shows checkbox, priority marker, title, and due date
+
+2. **`task show <id>`**
+   - Shows detailed information about a specific task
+   - Optional `--project-id` or uses default
+   - Supports `--json` output
+   - Text output shows all task fields including subtasks
+
+3. **`task create`** (alias: `add`)
+   - Creates a new task with specified options
+   - Required: `--title`
+   - Optional flags: `--project-id`, `--content`, `--priority`, `--tags`, `--date`, `--start`, `--due`, `--all-day`, `--timezone`
+   - Natural language date parsing (e.g., "tomorrow", "in 3 days")
+   - Returns created task with ID
+
+4. **`task update <id>`**
+   - Updates an existing task
+   - Same flags as create (except --title is optional)
+   - Returns updated task
+
+5. **`task delete <id>`**
+   - Deletes a task (with confirmation prompt)
+   - Optional `--project-id`
+   - Use `--force` to skip confirmation
+
+6. **`task complete <id>`**
+   - Marks a task as complete
+   - Optional `--project-id`
+
+7. **`task uncomplete <id>`**
+   - Marks a task as incomplete
+   - Optional `--project-id`
+
+### Key Features
+- **Default Project Support**: All task commands use the default project from config if `--project-id` is not specified
+- **Filtering**: List command supports filtering by priority, tag, and status (complete/incomplete)
+- **Natural Language Dates**: The `--date` flag accepts expressions like "today", "tomorrow", "in 3 days"
+- **Tags**: Comma-separated tags can be specified with `--tags`
+
+### Changes Made
+- `src/main.rs`:
+  - Added imports for `CreateTaskRequest`, `UpdateTaskRequest`, `TaskCommands`
+  - Added imports for `TaskData`, `TaskListData` output wrappers
+  - Added imports for `Priority`, `Status`, and `parse_date`
+  - Wired up `Commands::Task` to `cmd_task` handler
+  - Implemented `cmd_task` dispatcher function
+  - Implemented `get_project_id` helper function for default project resolution
+  - Implemented `cmd_task_list` - lists tasks with optional filtering
+  - Implemented `cmd_task_show` - shows task details
+  - Implemented `cmd_task_create` - creates new task with date parsing
+  - Implemented `cmd_task_update` - updates existing task
+  - Implemented `cmd_task_delete` - deletes task with confirmation
+  - Implemented `cmd_task_complete` - marks task complete
+  - Implemented `cmd_task_uncomplete` - marks task incomplete
+  - Implemented `parse_task_dates` - parses date options into API format
+
+### Results
+- All 82 tests pass
+- Project compiles successfully
+- All task commands work with both `--json` and text output
+- `ls` alias works for `list` command, `add` alias works for `create`
+- Date parsing integrates with natural language support
+- Clippy shows only expected dead_code warnings (subtask commands not yet implemented)
