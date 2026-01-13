@@ -102,3 +102,52 @@ Implemented the output formatting module in `src/output/` as specified in PRD Ph
 - All 50 tests pass (19 new tests for output module)
 - Project compiles successfully
 - Clippy shows only expected dead_code warnings (CLI not yet wired up)
+
+## 2026-01-14: Implemented Phase 8 - Utilities
+
+### What was done
+Implemented the utilities module as specified in PRD Phase 8, including date parsing and error handling.
+
+### Module Structure
+- `src/utils/mod.rs` - Module exports
+- `src/utils/date_parser.rs` - Natural language date parsing
+- `src/utils/error.rs` - Application error types with error codes
+- `src/constants.rs` - Centralized constants
+
+### Date Parser Implementation (`utils/date_parser.rs`)
+- `parse_date(input)` - Parse natural language or ISO dates to `DateTime<Utc>`
+  - Supports: "today", "tomorrow", "yesterday", "next week", "next month"
+  - Supports: "in X days/hours/minutes/weeks/months"
+  - Supports: ISO 8601 formats via dateparser crate
+- `parse_date_with_timezone(input, timezone)` - Parse with specific timezone
+- `parse_future_date(input)` - Parse and validate date is not in the past
+- `format_datetime(dt, timezone)` - Format datetime for display
+- `local_timezone()` - Get system timezone
+- `DateParseError` enum with user-friendly messages
+
+### Error Handling Implementation (`utils/error.rs`)
+- `ErrorCode` enum - Serializable error codes for JSON output:
+  - AUTH_REQUIRED, AUTH_EXPIRED, NOT_FOUND, INVALID_REQUEST
+  - RATE_LIMITED, SERVER_ERROR, NETWORK_ERROR, PARSE_ERROR
+  - CONFIG_ERROR, INVALID_DATE, NO_PROJECT, UNKNOWN
+- `AppError` enum - User-friendly error messages with actionable guidance
+- Conversion implementations from `ApiError`, `DateParseError`, and `anyhow::Error`
+
+### Constants Implementation (`constants.rs`)
+- API constants: `API_BASE_URL`
+- OAuth constants: `OAUTH_AUTH_URL`, `OAUTH_TOKEN_URL`, `OAUTH_REDIRECT_URI`, `OAUTH_SCOPES`
+- Project constants: `INBOX_PROJECT_ID`, `INBOX_PROJECT_NAME`, `DEFAULT_PROJECT_COLOR`
+- File constants: `CONFIG_FILE_NAME`, `TOKEN_FILE_NAME`, `APP_DIR_NAME`
+- Environment variables: `ENV_CLIENT_ID`, `ENV_CLIENT_SECRET`, `ENV_LOG_LEVEL`, `DEFAULT_LOG_LEVEL`
+
+### Changes Made
+- Created `src/utils/mod.rs`
+- Created `src/utils/date_parser.rs` with 13 tests
+- Created `src/utils/error.rs` with 5 tests
+- Created `src/constants.rs` with 6 tests
+- Updated `src/main.rs` to include utils and constants modules
+
+### Results
+- All 74 tests pass (24 new tests)
+- Project compiles successfully
+- Clippy shows only expected dead_code warnings (CLI not yet wired up)

@@ -1,8 +1,10 @@
 mod api;
 mod cli;
 mod config;
+mod constants;
 mod models;
 mod output;
+mod utils;
 
 use clap::Parser;
 use cli::Cli;
