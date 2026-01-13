@@ -151,3 +151,59 @@ Implemented the utilities module as specified in PRD Phase 8, including date par
 - All 74 tests pass (24 new tests)
 - Project compiles successfully
 - Clippy shows only expected dead_code warnings (CLI not yet wired up)
+
+## 2026-01-14: Implemented Phase 9 - CLI Root Commands
+
+### What was done
+Implemented the CLI root commands (init, reset, version) as specified in PRD Phase 9.
+
+### OAuth Authentication (`api/auth.rs`)
+- `AuthHandler` struct for managing OAuth flow
+- `get_auth_url()` - Generates authorization URL with CSRF token
+- `run_oauth_flow()` - Full OAuth flow: open browser, capture callback, exchange code
+- `capture_callback()` - TCP listener on localhost:8080 to capture authorization code
+- `exchange_code()` - Exchange authorization code for access token
+- Uses oauth2 crate v5 with proper type configuration
+- HTML success/error pages displayed after authorization
+
+### CLI Commands Implemented
+- **`tickrs init`** - OAuth authentication flow
+  - Checks if already authenticated
+  - Loads client credentials from environment variables
+  - Opens browser for TickTick authorization
+  - Captures callback and exchanges code for token
+  - Saves token and initializes config
+  - Supports `--json` output
+
+- **`tickrs reset`** - Clear configuration and credentials
+  - Checks if anything exists to reset
+  - Confirmation prompt (skippable with `--force`)
+  - Deletes token and config files
+  - Supports `--json` output
+
+- **`tickrs version`** - Display version information
+  - Shows name and version from Cargo.toml
+  - Supports `--json` and `--quiet` flags
+
+### Main Entry Point (`main.rs`)
+- Async runtime with tokio
+- Command dispatch with proper error handling
+- Output format handling (JSON/Text)
+- Quiet mode support
+- Exit codes for success/failure
+
+### Changes Made
+- `src/api/auth.rs`: Full OAuth implementation with 8 tests
+- `src/api/mod.rs`: Added `AuthHandler` export
+- `src/cli/mod.rs`: Added `Commands` export
+- `src/main.rs`: Complete command dispatch and handlers
+
+### Results
+- All 82 tests pass (8 new tests for OAuth)
+- Project compiles successfully
+- CLI commands work correctly:
+  - `tickrs version` outputs "tickrs 0.1.0"
+  - `tickrs --json version` outputs proper JSON
+  - `tickrs reset --force` handles no-config case
+  - `tickrs --help` shows all commands
+- Clippy shows only expected dead_code warnings (later phases not yet implemented)
