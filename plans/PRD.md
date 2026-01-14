@@ -970,11 +970,11 @@ Tags: urgent, work
   - [ ] INBOX project handling
   - [ ] Timezone conversions
   - [ ] Special characters in titles
-- [ ] Add CI/CD pipeline (GitHub Actions)
-  - [ ] Cargo fmt check
-  - [ ] Cargo clippy
-  - [ ] Cargo test
-  - [ ] Build for multiple platforms
+- [x] Add CI/CD pipeline (GitHub Actions)
+  - [x] Cargo fmt check
+  - [x] Cargo clippy
+  - [x] Cargo test
+  - [x] Build for multiple platforms
 
 **Deliverables:**
 - >80% test coverage
