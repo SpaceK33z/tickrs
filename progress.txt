@@ -901,3 +901,24 @@ Shows patterns for batch operations:
 - All 213+ tests pass (including 7 doc tests)
 - `cargo clippy -- -D warnings` passes
 - PRD Phase 14 "Create usage examples" requirement complete
+
+## 2026-01-14: Generated API documentation (Phase 14)
+
+### What was done
+Generated API documentation using `cargo doc` to complete the final item in PRD Phase 14.
+
+### Documentation Generated
+- `target/doc/tickrs/index.html` - Main entry point
+- Module documentation for: api, cli, config, constants, models, output, utils
+- All public types, traits, and functions are documented
+- Doc examples compile and run successfully (7 doc tests)
+
+### Changes Made
+- `plans/PRD.md`: Marked "Generate API documentation" section as complete
+
+### Results
+- All 213+ tests pass (including 7 doc tests)
+- `cargo clippy -- -D warnings` passes
+- Documentation generates without warnings
+- PRD Phase 14 "Generate API documentation" requirement complete
+- Phase 14 (Documentation & Examples) is now FULLY COMPLETE

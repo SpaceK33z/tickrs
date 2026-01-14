@@ -1009,8 +1009,8 @@ Tags: urgent, work
   - [x] `examples/automation.rs` - AI agent usage
   - [x] `examples/json_parsing.rs` - Parsing JSON output
   - [x] `examples/batch_operations.rs` - Bulk task creation
-- [ ] Generate API documentation
-  - [ ] `cargo doc --open`
+- [x] Generate API documentation
+  - [x] `cargo doc --open`
 
 **Deliverables:**
 - User-facing documentation is complete
