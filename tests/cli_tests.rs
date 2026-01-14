@@ -5,6 +5,8 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
 
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 // =============================================================================
 // Version Command Tests
 // =============================================================================
@@ -16,18 +18,19 @@ fn test_version_command_text_output() {
         .assert()
         .success()
         .stdout(predicate::str::contains("tickrs"))
-        .stdout(predicate::str::contains("0.1.0"));
+        .stdout(predicate::str::contains(VERSION));
 }
 
 #[test]
 fn test_version_command_json_output() {
     let mut cmd = Command::cargo_bin("tickrs").unwrap();
+    let expected_version = format!(r#""version": "{}""#, VERSION);
     cmd.args(["--json", "version"])
         .assert()
         .success()
         .stdout(predicate::str::contains(r#""success": true"#))
         .stdout(predicate::str::contains(r#""name": "ticktickrs""#))
-        .stdout(predicate::str::contains(r#""version": "0.1.0""#));
+        .stdout(predicate::str::contains(expected_version));
 }
 
 #[test]
