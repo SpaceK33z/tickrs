@@ -31,6 +31,7 @@
 //!     priority: None,
 //!     time_zone: None,
 //!     tags: None,
+//!     items: None,
 //! };
 //! let task = client.create_task(&request).await?;
 //! # Ok(())
