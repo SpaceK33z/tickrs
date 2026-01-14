@@ -1045,7 +1045,7 @@ Tags: urgent, work
   - [x] GitHub releases
 - [x] Consider distribution channels
   - [x] Cargo.io publishing
-  - [ ] Homebrew formula
+  - [x] Homebrew formula
   - [x] Binary releases on GitHub
 
 **Deliverables:**

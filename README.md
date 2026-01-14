@@ -16,6 +16,40 @@ An AI agent-optimized command-line interface for [TickTick](https://ticktick.com
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap SpaceK33z/tickrs https://github.com/SpaceK33z/tickrs
+brew install tickrs
+```
+
+### From Releases
+
+Download the latest release for your platform from [GitHub Releases](https://github.com/SpaceK33z/tickrs/releases).
+
+```bash
+# macOS (Apple Silicon)
+curl -LO https://github.com/SpaceK33z/tickrs/releases/latest/download/tickrs-aarch64-apple-darwin.tar.gz
+tar -xzf tickrs-aarch64-apple-darwin.tar.gz
+sudo mv tickrs /usr/local/bin/
+
+# macOS (Intel)
+curl -LO https://github.com/SpaceK33z/tickrs/releases/latest/download/tickrs-x86_64-apple-darwin.tar.gz
+tar -xzf tickrs-x86_64-apple-darwin.tar.gz
+sudo mv tickrs /usr/local/bin/
+
+# Linux
+curl -LO https://github.com/SpaceK33z/tickrs/releases/latest/download/tickrs-x86_64-unknown-linux-gnu.tar.gz
+tar -xzf tickrs-x86_64-unknown-linux-gnu.tar.gz
+sudo mv tickrs /usr/local/bin/
+```
+
+### With Cargo
+
+```bash
+cargo install tickrs
+```
+
 ### From Source
 
 ```bash
@@ -23,12 +57,6 @@ git clone https://github.com/SpaceK33z/tickrs.git
 cd tickrs
 cargo build --release
 # Binary will be at ./target/release/tickrs
-```
-
-### With Cargo
-
-```bash
-cargo install --path .
 ```
 
 ## Quick Start
