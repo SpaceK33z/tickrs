@@ -955,8 +955,8 @@ Tags: urgent, work
   - [x] Config: File operations
   - [x] Utils: Date parsing edge cases
   - [x] Output: JSON/text formatting
-- [ ] Write integration tests
-  - [ ] API client with mock server
+- [x] Write integration tests
+  - [x] API client with mock server
   - [ ] CLI commands with test fixtures
   - [ ] OAuth flow simulation
 - [x] Add error handling coverage

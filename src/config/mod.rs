@@ -283,7 +283,10 @@ mod tests {
         let loaded_contents = fs::read_to_string(&config_path).unwrap();
         let loaded_config: Config = toml::from_str(&loaded_contents).unwrap();
 
-        assert_eq!(loaded_config.default_project_id, Some("test_project".to_string()));
+        assert_eq!(
+            loaded_config.default_project_id,
+            Some("test_project".to_string())
+        );
         assert_eq!(loaded_config.default_project_color, "#AABBCC");
 
         cleanup_temp_dir(&temp_dir);

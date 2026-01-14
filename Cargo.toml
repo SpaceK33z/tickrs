@@ -58,4 +58,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 webbrowser = "1"
 
 [dev-dependencies]
-# Add test dependencies here when needed
+# Mock server for integration tests
+wiremock = "0.6"
+# Async test runtime
+tokio-test = "0.4"

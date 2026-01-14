@@ -566,3 +566,48 @@ Added comprehensive unit tests for config file operations to complete the "Confi
 - All 138 tests pass (14 new tests)
 - `cargo clippy -- -D warnings` passes
 - PRD Phase 13 "Config: File operations" requirement complete
+
+## 2026-01-14: Added API client integration tests with mock server (Phase 13)
+
+### What was done
+Added comprehensive integration tests for the API client using wiremock mock server. This completes the "API client with mock server" item in PRD Phase 13.
+
+### Tests Added (`tests/api_integration_tests.rs`)
+
+#### Project API Tests (10 tests)
+1. `test_list_projects_success` - Tests listing projects with INBOX prepending
+2. `test_get_project_success` - Tests fetching a single project
+3. `test_get_project_inbox_special_case` - Tests INBOX project handled locally
+4. `test_get_project_not_found` - Tests 404 error handling
+5. `test_create_project_success` - Tests project creation with JSON body
+6. `test_update_project_success` - Tests project update
+7. `test_update_inbox_project_fails` - Tests that INBOX cannot be updated
+8. `test_delete_project_success` - Tests project deletion
+9. `test_delete_inbox_project_fails` - Tests that INBOX cannot be deleted
+
+#### Task API Tests (5 tests)
+1. `test_list_tasks_success` - Tests listing tasks via project data endpoint
+2. `test_get_task_success` - Tests fetching a single task
+3. `test_create_task_success` - Tests task creation
+4. `test_delete_task_success` - Tests task deletion
+5. `test_complete_task_success` - Tests marking task complete
+
+#### Error Handling Tests (5 tests)
+1. `test_unauthorized_error` - Tests 401 response handling
+2. `test_rate_limit_error` - Tests 429 response handling
+3. `test_server_error` - Tests 500 response handling
+4. `test_bad_request_error` - Tests 400 response handling
+5. `test_invalid_json_response` - Tests malformed JSON handling
+
+### Changes Made
+- `Cargo.toml`: Added `wiremock` and `tokio-test` dev dependencies
+- `src/lib.rs`: Created new file to export modules for integration tests
+- `src/api/client.rs`: Added `with_token_and_base_url()` method for custom base URL (for testing)
+- `tests/api_integration_tests.rs`: Created new file with 19 integration tests
+- `plans/PRD.md`: Marked "API client with mock server" as complete
+
+### Results
+- All 157 tests pass (138 unit + 19 integration)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 13 "API client with mock server" requirement complete

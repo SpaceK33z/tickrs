@@ -13,6 +13,7 @@ pub const API_BASE_URL: &str = "https://api.ticktick.com/open/v1";
 pub struct TickTickClient {
     client: Client,
     token: String,
+    base_url: String,
 }
 
 /// API error response from TickTick
@@ -53,17 +54,27 @@ impl TickTickClient {
 
     /// Create a new client with a specific token
     pub fn with_token(token: String) -> Result<Self> {
+        Self::with_token_and_base_url(token, API_BASE_URL.to_string())
+    }
+
+    /// Create a new client with a specific token and base URL
+    /// Primarily used for testing with mock servers
+    pub fn with_token_and_base_url(token: String, base_url: String) -> Result<Self> {
         let client = Client::builder()
             .user_agent(format!("tickrs/{}", env!("CARGO_PKG_VERSION")))
             .build()
             .context("Failed to create HTTP client")?;
 
-        Ok(Self { client, token })
+        Ok(Self {
+            client,
+            token,
+            base_url,
+        })
     }
 
     /// Build the full URL for an endpoint
     fn url(&self, endpoint: &str) -> String {
-        format!("{}{}", API_BASE_URL, endpoint)
+        format!("{}{}", self.base_url, endpoint)
     }
 
     /// Make a GET request to the API
