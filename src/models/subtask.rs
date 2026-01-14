@@ -64,4 +64,62 @@ mod tests {
         let item: ChecklistItem = serde_json::from_str(json).unwrap();
         assert!(item.is_complete());
     }
+
+    #[test]
+    fn test_checklist_item_special_characters() {
+        let json = r#"{
+            "id": "item789",
+            "title": "Buy groceries: milk & eggs \"fresh\" <organic>",
+            "status": 0,
+            "completedTime": 0,
+            "isAllDay": false,
+            "sortOrder": 0,
+            "timeZone": ""
+        }"#;
+
+        let item: ChecklistItem = serde_json::from_str(json).unwrap();
+        assert_eq!(item.title, "Buy groceries: milk & eggs \"fresh\" <organic>");
+
+        // Verify round-trip
+        let serialized = serde_json::to_string(&item).unwrap();
+        let item2: ChecklistItem = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(item.title, item2.title);
+    }
+
+    #[test]
+    fn test_checklist_item_minimal_json() {
+        let json = r#"{
+            "id": "item123",
+            "title": "Minimal item",
+            "status": 0
+        }"#;
+
+        let item: ChecklistItem = serde_json::from_str(json).unwrap();
+        assert_eq!(item.id, "item123");
+        assert_eq!(item.title, "Minimal item");
+        assert!(!item.is_complete());
+        assert_eq!(item.completed_time, 0);
+        assert!(!item.is_all_day);
+        assert_eq!(item.sort_order, 0);
+        assert!(item.time_zone.is_empty());
+    }
+
+    #[test]
+    fn test_checklist_item_with_start_date() {
+        let json = r#"{
+            "id": "item123",
+            "title": "Scheduled item",
+            "status": 0,
+            "completedTime": 0,
+            "isAllDay": true,
+            "sortOrder": 0,
+            "startDate": "2026-01-20T00:00:00Z",
+            "timeZone": "Europe/London"
+        }"#;
+
+        let item: ChecklistItem = serde_json::from_str(json).unwrap();
+        assert!(item.is_all_day);
+        assert!(item.start_date.is_some());
+        assert_eq!(item.time_zone, "Europe/London");
+    }
 }

@@ -109,4 +109,60 @@ mod tests {
         assert_eq!(data.project.id, "proj123");
         assert!(data.tasks.is_empty());
     }
+
+    #[test]
+    fn test_project_special_characters_in_name() {
+        let json = "{\"id\":\"proj123\",\"name\":\"Work & Personal <Projects> \\\"Test\\\"\",\"color\":\"#FF5733\",\"sortOrder\":0,\"closed\":false,\"viewMode\":\"list\",\"kind\":\"TASK\"}";
+
+        let project: Project = serde_json::from_str(json).unwrap();
+        assert_eq!(project.name, "Work & Personal <Projects> \"Test\"");
+
+        // Verify round-trip serialization
+        let serialized = serde_json::to_string(&project).unwrap();
+        let project2: Project = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(project.name, project2.name);
+    }
+
+    #[test]
+    fn test_project_minimal_json() {
+        // Test deserializing with only required fields
+        let json = "{\"id\":\"proj123\",\"name\":\"Minimal\"}";
+
+        let project: Project = serde_json::from_str(json).unwrap();
+        assert_eq!(project.id, "proj123");
+        assert_eq!(project.name, "Minimal");
+        assert!(project.color.is_empty());
+        assert_eq!(project.sort_order, 0);
+        assert!(!project.closed);
+        assert_eq!(project.view_mode, "list");
+        assert_eq!(project.kind, "TASK");
+    }
+
+    #[test]
+    fn test_project_closed() {
+        let json = "{\"id\":\"proj123\",\"name\":\"Archived\",\"color\":\"\",\"sortOrder\":0,\"closed\":true,\"viewMode\":\"list\",\"kind\":\"TASK\"}";
+
+        let project: Project = serde_json::from_str(json).unwrap();
+        assert!(project.closed);
+    }
+
+    #[test]
+    fn test_project_with_group() {
+        let json = "{\"id\":\"proj123\",\"name\":\"SubProject\",\"color\":\"#00AA00\",\"sortOrder\":5,\"closed\":false,\"groupId\":\"folder1\",\"viewMode\":\"kanban\",\"kind\":\"TASK\"}";
+
+        let project: Project = serde_json::from_str(json).unwrap();
+        assert_eq!(project.group_id, Some("folder1".to_string()));
+        assert_eq!(project.view_mode, "kanban");
+        assert_eq!(project.sort_order, 5);
+    }
+
+    #[test]
+    fn test_project_data_with_columns() {
+        let json = "{\"project\":{\"id\":\"proj123\",\"name\":\"Kanban\",\"color\":\"\",\"sortOrder\":0,\"closed\":false,\"viewMode\":\"kanban\",\"kind\":\"TASK\"},\"tasks\":[],\"columns\":[{\"id\":\"col1\",\"name\":\"To Do\",\"sortOrder\":0},{\"id\":\"col2\",\"name\":\"Done\",\"sortOrder\":1}]}";
+
+        let data: ProjectData = serde_json::from_str(json).unwrap();
+        assert_eq!(data.columns.len(), 2);
+        assert_eq!(data.columns[0].name, "To Do");
+        assert_eq!(data.columns[1].name, "Done");
+    }
 }

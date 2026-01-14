@@ -435,3 +435,41 @@ Added cross-platform build job to GitHub Actions CI workflow to complete Phase 1
 - Release build succeeds
 - CI/CD pipeline now includes cross-platform builds
 - PRD Phase 13 "Add CI/CD pipeline (GitHub Actions)" fully complete
+
+## 2026-01-14: Added edge case unit tests (Phase 13)
+
+### What was done
+Added comprehensive unit tests for edge cases as specified in PRD Phase 13.
+
+### Tests Added
+
+#### Task Model (`src/models/task.rs`)
+- `test_task_special_characters_in_title` - Tests special characters, HTML entities, quotes, and emojis in task titles with round-trip serialization
+- `test_task_with_subtasks` - Tests task with multiple subtasks, verifying checklist item parsing
+- `test_task_with_dates` - Tests all-day tasks with due date, start date, timezone, and high priority
+- `test_task_completed` - Tests completed task with completion timestamp and status
+- `test_task_minimal_json` - Tests deserializing tasks with only required fields (verifies defaults)
+
+#### Project Model (`src/models/project.rs`)
+- `test_project_special_characters_in_name` - Tests special characters in project names with round-trip
+- `test_project_minimal_json` - Tests deserializing with minimal fields (verifies defaults)
+- `test_project_closed` - Tests archived/closed project state
+- `test_project_with_group` - Tests project with group ID and kanban view mode
+- `test_project_data_with_columns` - Tests kanban columns parsing
+
+#### Subtask Model (`src/models/subtask.rs`)
+- `test_checklist_item_special_characters` - Tests special characters in subtask titles
+- `test_checklist_item_minimal_json` - Tests minimal JSON with defaults
+- `test_checklist_item_with_start_date` - Tests all-day subtask with start date and timezone
+
+### Changes Made
+- `src/models/task.rs`: Added 5 new edge case tests
+- `src/models/project.rs`: Added 5 new edge case tests
+- `src/models/subtask.rs`: Added 3 new edge case tests
+- `plans/PRD.md`: Marked "Test edge cases" section as complete
+
+### Results
+- All 95 tests pass (13 new tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 13 "Test edge cases" requirement complete

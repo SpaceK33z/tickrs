@@ -173,4 +173,132 @@ mod tests {
         assert!(task.is_all_day);
         assert_eq!(task.tags, vec!["test"]);
     }
+
+    #[test]
+    fn test_task_special_characters_in_title() {
+        let json = r#"{
+            "id": "task789",
+            "projectId": "proj456",
+            "title": "Test <script>alert('xss')</script> & \"quotes\" 'apostrophes' émojis 🎉",
+            "isAllDay": false,
+            "content": "",
+            "priority": 0,
+            "status": 0,
+            "tags": [],
+            "items": [],
+            "reminders": [],
+            "sortOrder": 0,
+            "timeZone": ""
+        }"#;
+
+        let task: Task = serde_json::from_str(json).unwrap();
+        assert_eq!(
+            task.title,
+            "Test <script>alert('xss')</script> & \"quotes\" 'apostrophes' émojis 🎉"
+        );
+
+        // Verify round-trip serialization
+        let serialized = serde_json::to_string(&task).unwrap();
+        let task2: Task = serde_json::from_str(&serialized).unwrap();
+        assert_eq!(task.title, task2.title);
+    }
+
+    #[test]
+    fn test_task_with_subtasks() {
+        let json = r#"{
+            "id": "task123",
+            "projectId": "proj456",
+            "title": "Task with subtasks",
+            "isAllDay": false,
+            "content": "",
+            "priority": 0,
+            "status": 0,
+            "tags": [],
+            "items": [
+                {"id": "sub1", "title": "Subtask 1", "status": 0, "completedTime": 0, "isAllDay": false, "sortOrder": 0, "timeZone": ""},
+                {"id": "sub2", "title": "Subtask 2", "status": 1, "completedTime": 1704067200, "isAllDay": false, "sortOrder": 1, "timeZone": ""}
+            ],
+            "reminders": [],
+            "sortOrder": 0,
+            "timeZone": ""
+        }"#;
+
+        let task: Task = serde_json::from_str(json).unwrap();
+        assert_eq!(task.items.len(), 2);
+        assert_eq!(task.items[0].title, "Subtask 1");
+        assert!(!task.items[0].is_complete());
+        assert_eq!(task.items[1].title, "Subtask 2");
+        assert!(task.items[1].is_complete());
+    }
+
+    #[test]
+    fn test_task_with_dates() {
+        let json = r#"{
+            "id": "task123",
+            "projectId": "proj456",
+            "title": "Task with dates",
+            "isAllDay": true,
+            "content": "",
+            "dueDate": "2026-01-15T14:00:00Z",
+            "startDate": "2026-01-10T09:00:00Z",
+            "priority": 5,
+            "status": 0,
+            "tags": [],
+            "items": [],
+            "reminders": [],
+            "sortOrder": 0,
+            "timeZone": "America/New_York"
+        }"#;
+
+        let task: Task = serde_json::from_str(json).unwrap();
+        assert!(task.is_all_day);
+        assert!(task.due_date.is_some());
+        assert!(task.start_date.is_some());
+        assert_eq!(task.time_zone, "America/New_York");
+        assert_eq!(task.priority, Priority::High);
+    }
+
+    #[test]
+    fn test_task_completed() {
+        let json = r#"{
+            "id": "task123",
+            "projectId": "proj456",
+            "title": "Completed task",
+            "isAllDay": false,
+            "completedTime": "2026-01-14T10:30:00Z",
+            "content": "",
+            "priority": 0,
+            "status": 2,
+            "tags": [],
+            "items": [],
+            "reminders": [],
+            "sortOrder": 0,
+            "timeZone": ""
+        }"#;
+
+        let task: Task = serde_json::from_str(json).unwrap();
+        assert!(task.is_complete());
+        assert!(task.completed_time.is_some());
+        assert_eq!(task.status, Status::Complete);
+    }
+
+    #[test]
+    fn test_task_minimal_json() {
+        // Test deserializing a task with only required fields
+        let json = r#"{
+            "id": "task123",
+            "projectId": "proj456",
+            "title": "Minimal task"
+        }"#;
+
+        let task: Task = serde_json::from_str(json).unwrap();
+        assert_eq!(task.id, "task123");
+        assert_eq!(task.project_id, "proj456");
+        assert_eq!(task.title, "Minimal task");
+        assert!(!task.is_all_day);
+        assert!(task.items.is_empty());
+        assert!(task.tags.is_empty());
+        assert_eq!(task.priority, Priority::None);
+        assert_eq!(task.status, Status::Normal);
+    }
 }

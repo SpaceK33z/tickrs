@@ -965,11 +965,11 @@ Tags: urgent, work
   - [ ] Missing configuration
   - [ ] Invalid token
   - [ ] API rate limits
-- [ ] Test edge cases
-  - [ ] Empty project/task lists
-  - [ ] INBOX project handling
-  - [ ] Timezone conversions
-  - [ ] Special characters in titles
+- [x] Test edge cases
+  - [x] Empty project/task lists
+  - [x] INBOX project handling
+  - [x] Timezone conversions
+  - [x] Special characters in titles
 - [x] Add CI/CD pipeline (GitHub Actions)
   - [x] Cargo fmt check
   - [x] Cargo clippy
