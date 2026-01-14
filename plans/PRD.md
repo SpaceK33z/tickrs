@@ -996,11 +996,11 @@ Tags: urgent, work
 - [x] Create `.env.example`
   - [x] Document required environment variables
   - [x] Add instructions for TickTick OAuth app setup
-- [ ] Write CONTRIBUTING.md
-  - [ ] Development setup
-  - [ ] Code style guide
-  - [ ] Testing guidelines
-  - [ ] Pull request process
+- [x] Write CONTRIBUTING.md
+  - [x] Development setup
+  - [x] Code style guide
+  - [x] Testing guidelines
+  - [x] Pull request process
 - [ ] Add inline documentation
   - [ ] All public functions have doc comments
   - [ ] Module-level documentation
