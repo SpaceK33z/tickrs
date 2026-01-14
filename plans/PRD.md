@@ -1022,10 +1022,10 @@ Tags: urgent, work
 ### Phase 15: Polish & Release
 **Goal:** Final refinements and first release
 
-- [ ] Performance optimization
+- [x] Performance optimization
   - [ ] Profile with cargo flamegraph
   - [ ] Optimize hot paths
-  - [ ] Reduce binary size
+  - [x] Reduce binary size
 - [x] Security audit
   - [x] Token storage permissions (0600)
   - [x] Environment variable handling

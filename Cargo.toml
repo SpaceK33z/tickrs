@@ -57,6 +57,14 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Open browser for OAuth
 webbrowser = "1"
 
+[profile.release]
+# Optimize for size while maintaining good performance
+opt-level = "z"        # Optimize for binary size
+lto = true             # Enable link-time optimization
+codegen-units = 1      # Single codegen unit for better optimization
+panic = "abort"        # Don't include panic unwinding code
+strip = true           # Strip symbols from binary
+
 [dev-dependencies]
 # Mock server for integration tests
 wiremock = "0.6"

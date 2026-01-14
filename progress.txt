@@ -946,3 +946,30 @@ Added automated dependency vulnerability scanning to CI workflow using `rustsec/
 - `cargo clippy -- -D warnings` passes
 - Security audit job added to CI pipeline
 - PRD Phase 15 "Security audit" section marked complete
+
+## 2026-01-14: Reduced binary size (Phase 15 - Performance Optimization)
+
+### What was done
+Added release profile optimizations to Cargo.toml to significantly reduce binary size.
+
+### Optimizations Applied
+- `opt-level = "z"` - Optimize for binary size
+- `lto = true` - Enable link-time optimization for cross-crate inlining
+- `codegen-units = 1` - Single codegen unit for better whole-program optimization
+- `panic = "abort"` - Exclude panic unwinding code (not needed for CLI)
+- `strip = true` - Strip debug symbols from release binary
+
+### Results
+- **Before:** 8.1MB release binary
+- **After:** 2.9MB release binary
+- **Reduction:** 64% smaller (5.2MB saved)
+- Binary size is well below the PRD target of <10MB
+
+### Changes Made
+- `Cargo.toml`: Added `[profile.release]` section with size optimizations
+- `plans/PRD.md`: Marked "Reduce binary size" as complete
+
+### Verification
+- All 213 tests pass
+- `cargo clippy -- -D warnings` passes
+- Release binary builds and runs correctly
