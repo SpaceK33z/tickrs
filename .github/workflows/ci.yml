@@ -65,6 +65,15 @@ jobs:
           toolchain: "1.87"
       - run: cargo check
 
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   build:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

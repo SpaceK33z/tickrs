@@ -922,3 +922,27 @@ Generated API documentation using `cargo doc` to complete the final item in PRD 
 - Documentation generates without warnings
 - PRD Phase 14 "Generate API documentation" requirement complete
 - Phase 14 (Documentation & Examples) is now FULLY COMPLETE
+
+## 2026-01-14: Completed Security Audit (Phase 15)
+
+### What was done
+Completed the security audit task from Phase 15, verifying existing security measures and adding automated dependency scanning to CI.
+
+### Security Measures Verified
+1. **Token storage permissions (0600)** - Already implemented in `src/config/mod.rs:182-188` using Unix file permissions
+2. **Environment variable handling** - Uses `dotenvy` for `.env` loading and `env::var()` for secure access
+3. **Input validation** - Uses clap's derive macros for type-safe argument parsing; status filter validation in `main.rs:556-570`
+4. **CSRF protection** - OAuth flow verifies CSRF tokens in `src/api/auth.rs:89-97`
+5. **SSRF protection** - HTTP client uses `Policy::none()` for redirects in `src/api/auth.rs:111-113`
+
+### CI Changes
+Added automated dependency vulnerability scanning to CI workflow using `rustsec/audit-check@v2`:
+- `.github/workflows/ci.yml`: Added `security-audit` job that runs `cargo-audit` on every CI run
+- Uses GitHub token for rate limiting
+- Automatically checks dependencies against RustSec Advisory Database
+
+### Results
+- All 213 tests pass
+- `cargo clippy -- -D warnings` passes
+- Security audit job added to CI pipeline
+- PRD Phase 15 "Security audit" section marked complete
