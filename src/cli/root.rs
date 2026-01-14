@@ -14,8 +14,12 @@ pub struct Cli {
     pub json: bool,
 
     /// Suppress all output (useful for scripts that only need exit codes)
-    #[arg(long, short, global = true)]
+    #[arg(long, short = 'q', global = true)]
     pub quiet: bool,
+
+    /// Enable verbose output
+    #[arg(long, short = 'v', global = true)]
+    pub verbose: bool,
 
     #[command(subcommand)]
     pub command: Commands,
