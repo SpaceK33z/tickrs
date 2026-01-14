@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// # Example
 ///
 /// ```
-/// use tickrs::models::ChecklistItemRequest;
+/// use ticktickrs::models::ChecklistItemRequest;
 ///
 /// let subtasks = vec![
 ///     ChecklistItemRequest::new("Pack passport"),

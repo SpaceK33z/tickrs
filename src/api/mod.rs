@@ -17,7 +17,7 @@
 //! # Example
 //!
 //! ```no_run
-//! use tickrs::api::{TickTickClient, CreateTaskRequest};
+//! use ticktickrs::api::{TickTickClient, CreateTaskRequest};
 //!
 //! # async fn example() -> anyhow::Result<()> {
 //! let client = TickTickClient::with_token("your_token".to_string())?;

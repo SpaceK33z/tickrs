@@ -113,7 +113,7 @@ impl Config {
 /// # Example
 ///
 /// ```no_run
-/// use tickrs::config::TokenStorage;
+/// use ticktickrs::config::TokenStorage;
 ///
 /// # fn example() -> anyhow::Result<()> {
 /// // Save a token

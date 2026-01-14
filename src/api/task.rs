@@ -24,8 +24,8 @@ use tracing::{debug, instrument};
 /// # Example
 ///
 /// ```
-/// use tickrs::api::CreateTaskRequest;
-/// use tickrs::models::ChecklistItemRequest;
+/// use ticktickrs::api::CreateTaskRequest;
+/// use ticktickrs::models::ChecklistItemRequest;
 ///
 /// // Simple task
 /// let request = CreateTaskRequest {
@@ -100,8 +100,8 @@ pub struct CreateTaskRequest {
 /// # Example
 ///
 /// ```
-/// use tickrs::api::UpdateTaskRequest;
-/// use tickrs::models::ChecklistItemRequest;
+/// use ticktickrs::api::UpdateTaskRequest;
+/// use ticktickrs::models::ChecklistItemRequest;
 ///
 /// // Update title and priority
 /// let request = UpdateTaskRequest {

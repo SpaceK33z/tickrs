@@ -19,7 +19,7 @@ use tracing::{debug, instrument};
 /// # Example
 ///
 /// ```
-/// use tickrs::api::CreateProjectRequest;
+/// use ticktickrs::api::CreateProjectRequest;
 ///
 /// let request = CreateProjectRequest {
 ///     name: "My Project".to_string(),
@@ -52,7 +52,7 @@ pub struct CreateProjectRequest {
 /// # Example
 ///
 /// ```
-/// use tickrs::api::UpdateProjectRequest;
+/// use ticktickrs::api::UpdateProjectRequest;
 ///
 /// let request = UpdateProjectRequest {
 ///     name: Some("Renamed Project".to_string()),

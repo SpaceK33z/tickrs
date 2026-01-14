@@ -59,8 +59,8 @@ impl Task {
 /// # Example
 ///
 /// ```
-/// use tickrs::models::task::TaskBuilder;
-/// use tickrs::models::{Priority, ChecklistItemRequest};
+/// use ticktickrs::models::task::TaskBuilder;
+/// use ticktickrs::models::{Priority, ChecklistItemRequest};
 ///
 /// let task = TaskBuilder::new("proj123", "Complete documentation")
 ///     .content("Add doc comments to all public APIs")
@@ -157,8 +157,8 @@ impl TaskBuilder {
     /// # Example
     ///
     /// ```
-    /// use tickrs::models::task::TaskBuilder;
-    /// use tickrs::models::ChecklistItemRequest;
+    /// use ticktickrs::models::task::TaskBuilder;
+    /// use ticktickrs::models::ChecklistItemRequest;
     ///
     /// let task = TaskBuilder::new("proj123", "Shopping list")
     ///     .items(vec![
@@ -212,8 +212,8 @@ impl TaskBuilder {
     /// # Example
     ///
     /// ```
-    /// use tickrs::models::task::TaskBuilder;
-    /// use tickrs::models::ChecklistItemRequest;
+    /// use ticktickrs::models::task::TaskBuilder;
+    /// use ticktickrs::models::ChecklistItemRequest;
     ///
     /// let request = TaskBuilder::new("proj123", "Pack for trip")
     ///     .items(vec![
