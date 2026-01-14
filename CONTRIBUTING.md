@@ -230,7 +230,7 @@ cargo test --test cli_tests
 
 ### Submitting a PR
 
-1. **Fork the repository** and create your branch from `master`
+1. **Fork the repository** and create your branch from `main`
 
 2. **Use a descriptive branch name:**
    - `feature/add-batch-operations`
