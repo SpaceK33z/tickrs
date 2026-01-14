@@ -1,7 +1,7 @@
 //! Task API endpoints for TickTick
 
 use crate::api::client::{ApiError, TickTickClient};
-use crate::models::{Status, Task};
+use crate::models::{ChecklistItemRequest, Status, Task};
 use tracing::{debug, instrument};
 
 /// Request body for creating a new task.
@@ -19,12 +19,15 @@ use tracing::{debug, instrument};
 /// - `tags` - List of tag names
 /// - `is_all_day` - Whether this is an all-day task
 /// - `time_zone` - IANA timezone (e.g., "America/New_York")
+/// - `items` - Subtasks/checklist items
 ///
 /// # Example
 ///
 /// ```
 /// use tickrs::api::CreateTaskRequest;
+/// use tickrs::models::ChecklistItemRequest;
 ///
+/// // Simple task
 /// let request = CreateTaskRequest {
 ///     title: "Complete report".to_string(),
 ///     project_id: "inbox".to_string(),
@@ -35,6 +38,25 @@ use tracing::{debug, instrument};
 ///     priority: Some(3), // Medium
 ///     time_zone: None,
 ///     tags: Some(vec!["work".to_string()]),
+///     items: None,
+/// };
+///
+/// // Task with subtasks
+/// let request_with_subtasks = CreateTaskRequest {
+///     title: "Pack for trip".to_string(),
+///     project_id: "inbox".to_string(),
+///     content: None,
+///     is_all_day: None,
+///     start_date: None,
+///     due_date: None,
+///     priority: None,
+///     time_zone: None,
+///     tags: None,
+///     items: Some(vec![
+///         ChecklistItemRequest::new("Passport"),
+///         ChecklistItemRequest::new("Clothes").with_sort_order(1),
+///         ChecklistItemRequest::new("Toiletries").with_sort_order(2),
+///     ]),
 /// };
 /// ```
 #[derive(Debug, serde::Serialize)]
@@ -65,6 +87,9 @@ pub struct CreateTaskRequest {
     /// List of tag names
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    /// Subtasks/checklist items
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Vec<ChecklistItemRequest>>,
 }
 
 /// Request body for updating an existing task.
@@ -76,7 +101,9 @@ pub struct CreateTaskRequest {
 ///
 /// ```
 /// use tickrs::api::UpdateTaskRequest;
+/// use tickrs::models::ChecklistItemRequest;
 ///
+/// // Update title and priority
 /// let request = UpdateTaskRequest {
 ///     id: "task123".to_string(),
 ///     project_id: "proj456".to_string(),
@@ -89,6 +116,25 @@ pub struct CreateTaskRequest {
 ///     time_zone: None,
 ///     tags: None,
 ///     status: None,
+///     items: None,
+/// };
+///
+/// // Add subtasks to existing task
+/// let request_with_items = UpdateTaskRequest {
+///     id: "task123".to_string(),
+///     project_id: "proj456".to_string(),
+///     title: None,
+///     content: None,
+///     is_all_day: None,
+///     start_date: None,
+///     due_date: None,
+///     priority: None,
+///     time_zone: None,
+///     tags: None,
+///     status: None,
+///     items: Some(vec![
+///         ChecklistItemRequest::new("New subtask"),
+///     ]),
 /// };
 /// ```
 #[derive(Debug, serde::Serialize)]
@@ -125,6 +171,9 @@ pub struct UpdateTaskRequest {
     /// Completion status: 0 (incomplete), 2 (complete)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<i32>,
+    /// Subtasks/checklist items
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Vec<ChecklistItemRequest>>,
 }
 
 impl TickTickClient {
@@ -223,6 +272,7 @@ impl TickTickClient {
             time_zone: None,
             tags: None,
             status: Some(Status::Normal.to_api_value()),
+            items: None,
         };
 
         self.update_task(task_id, &request).await
@@ -245,6 +295,7 @@ mod tests {
             priority: Some(3),
             time_zone: Some("UTC".to_string()),
             tags: Some(vec!["work".to_string(), "urgent".to_string()]),
+            items: None,
         };
 
         let json = serde_json::to_string(&request).unwrap();
@@ -268,6 +319,7 @@ mod tests {
             priority: None,
             time_zone: None,
             tags: None,
+            items: None,
         };
 
         let json = serde_json::to_string(&request).unwrap();
@@ -292,6 +344,7 @@ mod tests {
             time_zone: None,
             tags: None,
             status: None,
+            items: None,
         };
 
         let json = serde_json::to_string(&request).unwrap();
@@ -317,9 +370,61 @@ mod tests {
             time_zone: None,
             tags: None,
             status: Some(0), // Normal/incomplete
+            items: None,
         };
 
         let json = serde_json::to_string(&request).unwrap();
         assert!(json.contains("\"status\":0"));
+    }
+
+    #[test]
+    fn test_create_task_request_with_items() {
+        let request = CreateTaskRequest {
+            title: "Task with subtasks".to_string(),
+            project_id: "proj123".to_string(),
+            content: None,
+            is_all_day: None,
+            start_date: None,
+            due_date: None,
+            priority: None,
+            time_zone: None,
+            tags: None,
+            items: Some(vec![
+                ChecklistItemRequest::new("Subtask 1"),
+                ChecklistItemRequest::new("Subtask 2").with_sort_order(1),
+                ChecklistItemRequest::new("Done subtask").completed(),
+            ]),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(json.contains("\"title\":\"Task with subtasks\""));
+        assert!(json.contains("\"items\":["));
+        assert!(json.contains("\"title\":\"Subtask 1\""));
+        assert!(json.contains("\"title\":\"Subtask 2\""));
+        assert!(json.contains("\"sortOrder\":1"));
+        assert!(json.contains("\"status\":1")); // completed subtask
+    }
+
+    #[test]
+    fn test_update_task_request_with_items() {
+        let request = UpdateTaskRequest {
+            id: "task123".to_string(),
+            project_id: "proj456".to_string(),
+            title: None,
+            content: None,
+            is_all_day: None,
+            start_date: None,
+            due_date: None,
+            priority: None,
+            time_zone: None,
+            tags: None,
+            status: None,
+            items: Some(vec![ChecklistItemRequest::new("New subtask")]),
+        };
+
+        let json = serde_json::to_string(&request).unwrap();
+        assert!(json.contains("\"id\":\"task123\""));
+        assert!(json.contains("\"items\":["));
+        assert!(json.contains("\"title\":\"New subtask\""));
     }
 }

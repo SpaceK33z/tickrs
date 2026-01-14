@@ -21,7 +21,7 @@ use cli::task::TaskCommands;
 use cli::{Cli, Commands};
 use config::{Config, TokenStorage};
 use constants::{ENV_CLIENT_ID, ENV_CLIENT_SECRET};
-use models::{Priority, Status};
+use models::{ChecklistItemRequest, Priority, Status};
 use output::json::{
     JsonResponse, ProjectData, ProjectListData, SubtaskListData, TaskData, TaskListData,
     VersionData,
@@ -461,7 +461,18 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
             priority,
             tag,
             status,
-        } => cmd_task_list(project_id, project_name, priority, tag, status, format, quiet).await,
+        } => {
+            cmd_task_list(
+                project_id,
+                project_name,
+                priority,
+                tag,
+                status,
+                format,
+                quiet,
+            )
+            .await
+        }
         TaskCommands::Show {
             id,
             project_id,
@@ -479,10 +490,23 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
             due,
             all_day,
             timezone,
+            items,
         } => {
             cmd_task_create(
-                &title, project_id, project_name, content, priority, tags, date, start, due,
-                all_day, timezone, format, quiet,
+                &title,
+                project_id,
+                project_name,
+                content,
+                priority,
+                tags,
+                date,
+                start,
+                due,
+                all_day,
+                timezone,
+                items,
+                format,
+                quiet,
             )
             .await
         }
@@ -499,10 +523,24 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
             due,
             all_day,
             timezone,
+            items,
         } => {
             cmd_task_update(
-                &id, project_id, project_name, title, content, priority, tags, date, start, due,
-                all_day, timezone, format, quiet,
+                &id,
+                project_id,
+                project_name,
+                title,
+                content,
+                priority,
+                tags,
+                date,
+                start,
+                due,
+                all_day,
+                timezone,
+                items,
+                format,
+                quiet,
             )
             .await
         }
@@ -663,6 +701,7 @@ async fn cmd_task_create(
     due: Option<String>,
     all_day: bool,
     timezone: Option<String>,
+    items: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
@@ -674,6 +713,14 @@ async fn cmd_task_create(
     // Parse tags
     let tags_vec = tags.map(|t| t.split(',').map(|s| s.trim().to_string()).collect());
 
+    // Parse subtasks/items
+    let items_vec = items.map(|i| {
+        i.split(',')
+            .enumerate()
+            .map(|(idx, s)| ChecklistItemRequest::new(s.trim()).with_sort_order(idx as i64))
+            .collect()
+    });
+
     let request = CreateTaskRequest {
         title: title.to_string(),
         project_id: project_id.clone(),
@@ -684,6 +731,7 @@ async fn cmd_task_create(
         priority: priority.map(|p| p.to_api_value()),
         time_zone: timezone,
         tags: tags_vec,
+        items: items_vec,
     };
 
     let client = TickTickClient::new()?;
@@ -722,6 +770,7 @@ async fn cmd_task_update(
     due: Option<String>,
     all_day: Option<bool>,
     timezone: Option<String>,
+    items: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
@@ -732,6 +781,14 @@ async fn cmd_task_update(
 
     // Parse tags
     let tags_vec = tags.map(|t| t.split(',').map(|s| s.trim().to_string()).collect());
+
+    // Parse subtasks/items
+    let items_vec = items.map(|i| {
+        i.split(',')
+            .enumerate()
+            .map(|(idx, s)| ChecklistItemRequest::new(s.trim()).with_sort_order(idx as i64))
+            .collect()
+    });
 
     let request = UpdateTaskRequest {
         id: task_id.to_string(),
@@ -745,6 +802,7 @@ async fn cmd_task_update(
         time_zone: timezone,
         tags: tags_vec,
         status: None,
+        items: items_vec,
     };
 
     let client = TickTickClient::new()?;

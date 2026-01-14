@@ -1,6 +1,60 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+/// Request body for creating or updating a checklist item (subtask).
+///
+/// Use this when creating or updating tasks with subtasks via
+/// [`CreateTaskRequest`](crate::api::CreateTaskRequest) or
+/// [`UpdateTaskRequest`](crate::api::UpdateTaskRequest).
+///
+/// # Example
+///
+/// ```
+/// use tickrs::models::ChecklistItemRequest;
+///
+/// let subtasks = vec![
+///     ChecklistItemRequest::new("Pack passport"),
+///     ChecklistItemRequest::new("Book hotel").completed(),
+///     ChecklistItemRequest::new("Confirm flight").with_sort_order(2),
+/// ];
+/// ```
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ChecklistItemRequest {
+    /// Subtask title (required)
+    pub title: String,
+    /// Completion status: 0 (incomplete), 1+ (complete)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<i32>,
+    /// Sort order for display (lower values appear first)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sort_order: Option<i64>,
+}
+
+impl ChecklistItemRequest {
+    /// Create a new subtask request with the given title.
+    pub fn new(title: impl Into<String>) -> Self {
+        Self {
+            title: title.into(),
+            status: None,
+            sort_order: None,
+        }
+    }
+
+    /// Mark this subtask as completed.
+    #[allow(dead_code)]
+    pub fn completed(mut self) -> Self {
+        self.status = Some(1);
+        self
+    }
+
+    /// Set the sort order for this subtask.
+    pub fn with_sort_order(mut self, order: i64) -> Self {
+        self.sort_order = Some(order);
+        self
+    }
+}
+
 /// Checklist item (subtask) within a task
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -121,5 +175,46 @@ mod tests {
         assert!(item.is_all_day);
         assert!(item.start_date.is_some());
         assert_eq!(item.time_zone, "Europe/London");
+    }
+
+    #[test]
+    fn test_checklist_item_request_serialization() {
+        let request = ChecklistItemRequest::new("Pack passport");
+        let json = serde_json::to_string(&request).unwrap();
+
+        assert!(json.contains("\"title\":\"Pack passport\""));
+        // status and sortOrder should be omitted when None
+        assert!(!json.contains("status"));
+        assert!(!json.contains("sortOrder"));
+    }
+
+    #[test]
+    fn test_checklist_item_request_completed() {
+        let request = ChecklistItemRequest::new("Done item").completed();
+        let json = serde_json::to_string(&request).unwrap();
+
+        assert!(json.contains("\"title\":\"Done item\""));
+        assert!(json.contains("\"status\":1"));
+    }
+
+    #[test]
+    fn test_checklist_item_request_with_sort_order() {
+        let request = ChecklistItemRequest::new("Ordered item").with_sort_order(5);
+        let json = serde_json::to_string(&request).unwrap();
+
+        assert!(json.contains("\"title\":\"Ordered item\""));
+        assert!(json.contains("\"sortOrder\":5"));
+    }
+
+    #[test]
+    fn test_checklist_item_request_full() {
+        let request = ChecklistItemRequest::new("Full item")
+            .completed()
+            .with_sort_order(10);
+        let json = serde_json::to_string(&request).unwrap();
+
+        assert!(json.contains("\"title\":\"Full item\""));
+        assert!(json.contains("\"status\":1"));
+        assert!(json.contains("\"sortOrder\":10"));
     }
 }

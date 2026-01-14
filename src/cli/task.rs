@@ -88,6 +88,10 @@ pub enum TaskCommands {
         /// Timezone
         #[arg(long)]
         timezone: Option<String>,
+
+        /// Subtasks/checklist items (comma-separated)
+        #[arg(long)]
+        items: Option<String>,
     },
 
     /// Update an existing task
@@ -138,6 +142,10 @@ pub enum TaskCommands {
         /// Timezone
         #[arg(long)]
         timezone: Option<String>,
+
+        /// Subtasks/checklist items (comma-separated)
+        #[arg(long)]
+        items: Option<String>,
     },
 
     /// Delete a task

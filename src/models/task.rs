@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use super::{ChecklistItem, Priority, Status};
+use super::{ChecklistItem, ChecklistItemRequest, Priority, Status};
 
 /// Task model matching TickTick API format
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,7 +60,7 @@ impl Task {
 ///
 /// ```
 /// use tickrs::models::task::TaskBuilder;
-/// use tickrs::models::Priority;
+/// use tickrs::models::{Priority, ChecklistItemRequest};
 ///
 /// let task = TaskBuilder::new("proj123", "Complete documentation")
 ///     .content("Add doc comments to all public APIs")
@@ -70,6 +70,14 @@ impl Task {
 ///
 /// assert_eq!(task.title, "Complete documentation");
 /// assert_eq!(task.priority, Priority::High);
+///
+/// // Create a task with subtasks
+/// let task_with_subtasks = TaskBuilder::new("proj123", "Pack for trip")
+///     .items(vec![
+///         ChecklistItemRequest::new("Passport"),
+///         ChecklistItemRequest::new("Clothes"),
+///     ])
+///     .build();
 /// ```
 #[derive(Default)]
 #[allow(dead_code)] // Available for external use; tested in tests
@@ -83,6 +91,7 @@ pub struct TaskBuilder {
     start_date: Option<DateTime<Utc>>,
     time_zone: Option<String>,
     tags: Vec<String>,
+    items: Vec<ChecklistItemRequest>,
 }
 
 #[allow(dead_code)] // Builder methods available for external use; tested
@@ -143,10 +152,35 @@ impl TaskBuilder {
         self
     }
 
+    /// Set the task's subtasks/checklist items.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use tickrs::models::task::TaskBuilder;
+    /// use tickrs::models::ChecklistItemRequest;
+    ///
+    /// let task = TaskBuilder::new("proj123", "Shopping list")
+    ///     .items(vec![
+    ///         ChecklistItemRequest::new("Milk"),
+    ///         ChecklistItemRequest::new("Bread").with_sort_order(1),
+    ///         ChecklistItemRequest::new("Eggs").completed(),
+    ///     ])
+    ///     .build();
+    /// ```
+    pub fn items(mut self, items: Vec<ChecklistItemRequest>) -> Self {
+        self.items = items;
+        self
+    }
+
     /// Build the [`Task`] instance.
     ///
     /// The returned task will have an empty `id` field, which will be
     /// populated by the API when the task is created.
+    ///
+    /// Note: Subtasks set via [`items()`](Self::items) are not included in the
+    /// built Task. Use [`into_create_request()`](Self::into_create_request) to
+    /// create a request that includes subtasks for the API.
     pub fn build(self) -> Task {
         Task {
             id: String::new(), // Will be set by API
@@ -165,6 +199,55 @@ impl TaskBuilder {
             status: Status::Normal,
             time_zone: self.time_zone.unwrap_or_default(),
             tags: self.tags,
+        }
+    }
+
+    /// Build a [`CreateTaskRequest`](crate::api::CreateTaskRequest) for the API.
+    ///
+    /// This method creates a request that can be passed to
+    /// [`TickTickClient::create_task()`](crate::api::TickTickClient::create_task).
+    /// Unlike [`build()`](Self::build), this includes subtasks set via
+    /// [`items()`](Self::items).
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use tickrs::models::task::TaskBuilder;
+    /// use tickrs::models::ChecklistItemRequest;
+    ///
+    /// let request = TaskBuilder::new("proj123", "Pack for trip")
+    ///     .items(vec![
+    ///         ChecklistItemRequest::new("Passport"),
+    ///         ChecklistItemRequest::new("Clothes"),
+    ///     ])
+    ///     .into_create_request();
+    ///
+    /// // Now use: client.create_task(&request).await
+    /// ```
+    pub fn into_create_request(self) -> crate::api::CreateTaskRequest {
+        crate::api::CreateTaskRequest {
+            title: self.title,
+            project_id: self.project_id,
+            content: self.content,
+            is_all_day: if self.is_all_day { Some(true) } else { None },
+            start_date: self.start_date.map(|d| d.to_rfc3339()),
+            due_date: self.due_date.map(|d| d.to_rfc3339()),
+            priority: if self.priority != Priority::None {
+                Some(self.priority.to_api_value())
+            } else {
+                None
+            },
+            time_zone: self.time_zone,
+            tags: if self.tags.is_empty() {
+                None
+            } else {
+                Some(self.tags)
+            },
+            items: if self.items.is_empty() {
+                None
+            } else {
+                Some(self.items)
+            },
         }
     }
 }

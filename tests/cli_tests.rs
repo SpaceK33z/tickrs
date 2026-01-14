@@ -282,6 +282,57 @@ fn test_task_uncomplete_requires_id() {
     cmd.args(["task", "uncomplete"]).assert().failure();
 }
 
+#[test]
+fn test_task_list_project_name_flag_in_help() {
+    let mut cmd = Command::cargo_bin("tickrs").unwrap();
+    cmd.args(["task", "list", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--project-name"))
+        .stdout(predicate::str::contains("-n"));
+}
+
+#[test]
+fn test_task_create_project_name_flag_in_help() {
+    let mut cmd = Command::cargo_bin("tickrs").unwrap();
+    cmd.args(["task", "create", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--project-name"))
+        .stdout(predicate::str::contains("-n"));
+}
+
+#[test]
+fn test_task_list_project_id_and_name_conflict() {
+    let temp_dir = tempfile::tempdir().unwrap();
+
+    let mut cmd = Command::cargo_bin("tickrs").unwrap();
+    cmd.env("HOME", temp_dir.path())
+        .env("XDG_CONFIG_HOME", temp_dir.path().join("config"))
+        .env("XDG_DATA_HOME", temp_dir.path().join("data"))
+        .args([
+            "task",
+            "list",
+            "--project-id",
+            "123",
+            "--project-name",
+            "Test",
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("Cannot specify both"));
+}
+
+#[test]
+fn test_subtask_list_project_name_flag_in_help() {
+    let mut cmd = Command::cargo_bin("tickrs").unwrap();
+    cmd.args(["subtask", "list", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--project-name"))
+        .stdout(predicate::str::contains("-n"));
+}
+
 // =============================================================================
 // Subtask Command Tests
 // =============================================================================

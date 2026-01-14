@@ -7,7 +7,8 @@
 //!
 //! - [`Task`] - A task/to-do item with title, dates, priority, tags, etc.
 //! - [`Project`] - A project/list that contains tasks
-//! - [`ChecklistItem`] - A subtask within a task
+//! - [`ChecklistItem`] - A subtask within a task (for reading)
+//! - [`ChecklistItemRequest`] - A subtask request (for creating/updating)
 //!
 //! # Enums
 //!
@@ -28,5 +29,5 @@ pub mod time;
 pub use priority::Priority;
 pub use project::{Project, ProjectData, INBOX_PROJECT_ID};
 pub use status::Status;
-pub use subtask::ChecklistItem;
+pub use subtask::{ChecklistItem, ChecklistItemRequest};
 pub use task::Task;

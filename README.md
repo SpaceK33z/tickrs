@@ -221,6 +221,7 @@ Create a new task.
 | `-c, --content <CONTENT>` | Task description |
 | `--priority <PRIORITY>` | Priority: `none`, `low`, `medium`, `high` |
 | `--tags <TAGS>` | Comma-separated tags |
+| `--items <ITEMS>` | Comma-separated subtasks/checklist items |
 | `--date <DATE>` | Natural language date (sets start and due) |
 | `--start <DATE>` | Start date (ISO 8601) |
 | `--due <DATE>` | Due date (ISO 8601) |
@@ -239,6 +240,9 @@ tickrs task create --title "Code review" --tags "work,urgent" --date "in 2 days"
 
 # Task in specific project
 tickrs task create --title "Research" --project-id abc123 --content "Look into new frameworks"
+
+# Task with subtasks
+tickrs task create --title "Pack for trip" --items "Passport,Clothes,Toiletries,Chargers"
 ```
 
 #### `tickrs task update <id>`
@@ -247,6 +251,7 @@ Update an existing task.
 ```bash
 tickrs task update task123 --title "Updated title" --priority medium
 tickrs task update task123 --due "2026-01-20T14:00:00Z"
+tickrs task update task123 --items "Step 1,Step 2,Step 3"
 ```
 
 #### `tickrs task delete <id> [--force]`
@@ -280,7 +285,7 @@ tickrs subtask list task123
 tickrs subtask list task123 --json
 ```
 
-> **Note:** Direct create/update/delete operations for subtasks are not supported by the TickTick API. Subtasks are stored as part of the parent task's `items` array. To modify subtasks, you would need to update the parent task with a modified items array using `tickrs task update`.
+> **Note:** To create or modify subtasks, use the `--items` flag on `tickrs task create` or `tickrs task update`. For example: `tickrs task create --title "My task" --items "Step 1,Step 2,Step 3"`
 
 ## JSON Output
 

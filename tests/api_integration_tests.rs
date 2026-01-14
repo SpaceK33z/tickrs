@@ -3,8 +3,11 @@
 use wiremock::matchers::{bearer_token, header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-use tickrs::api::{CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest};
-use tickrs::models::Priority;
+use tickrs::api::{
+    CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest,
+    UpdateTaskRequest,
+};
+use tickrs::models::{ChecklistItemRequest, Priority};
 
 /// Helper to create a test client pointing at mock server
 fn test_client(server: &MockServer) -> TickTickClient {
@@ -367,6 +370,7 @@ async fn test_create_task_success() {
         priority: Some(1),
         time_zone: None,
         tags: None,
+        items: None,
     };
 
     let task = client.create_task(&request).await.unwrap();
@@ -510,4 +514,118 @@ async fn test_invalid_json_response() {
     assert!(result.is_err());
     let err = result.unwrap_err();
     assert!(err.to_string().contains("parse"));
+}
+
+// =============================================================================
+// Subtask (Checklist Items) Tests
+// =============================================================================
+
+#[tokio::test]
+async fn test_create_task_with_subtasks() {
+    let mock_server = MockServer::start().await;
+
+    // Response includes the created task with subtasks
+    let response_body = r##"{
+        "id": "task_with_subs",
+        "projectId": "proj123",
+        "title": "Task with subtasks",
+        "isAllDay": false,
+        "content": "",
+        "priority": 0,
+        "status": 0,
+        "tags": [],
+        "items": [
+            {"id": "sub1", "title": "Subtask 1", "status": 0, "completedTime": 0, "isAllDay": false, "sortOrder": 0, "timeZone": ""},
+            {"id": "sub2", "title": "Subtask 2", "status": 0, "completedTime": 0, "isAllDay": false, "sortOrder": 1, "timeZone": ""}
+        ],
+        "reminders": [],
+        "sortOrder": 0,
+        "timeZone": ""
+    }"##;
+
+    Mock::given(method("POST"))
+        .and(path("/task"))
+        .and(bearer_token("test_token"))
+        .and(header("content-type", "application/json"))
+        .respond_with(ResponseTemplate::new(201).set_body_string(response_body))
+        .mount(&mock_server)
+        .await;
+
+    let client = test_client(&mock_server);
+    let request = CreateTaskRequest {
+        title: "Task with subtasks".to_string(),
+        project_id: "proj123".to_string(),
+        content: None,
+        is_all_day: None,
+        start_date: None,
+        due_date: None,
+        priority: None,
+        time_zone: None,
+        tags: None,
+        items: Some(vec![
+            ChecklistItemRequest::new("Subtask 1"),
+            ChecklistItemRequest::new("Subtask 2").with_sort_order(1),
+        ]),
+    };
+
+    let task = client.create_task(&request).await.unwrap();
+
+    assert_eq!(task.id, "task_with_subs");
+    assert_eq!(task.title, "Task with subtasks");
+    assert_eq!(task.items.len(), 2);
+    assert_eq!(task.items[0].title, "Subtask 1");
+    assert_eq!(task.items[1].title, "Subtask 2");
+}
+
+#[tokio::test]
+async fn test_update_task_add_subtasks() {
+    let mock_server = MockServer::start().await;
+
+    // Response includes the updated task with new subtasks
+    let response_body = r##"{
+        "id": "task123",
+        "projectId": "proj456",
+        "title": "Existing task",
+        "isAllDay": false,
+        "content": "",
+        "priority": 0,
+        "status": 0,
+        "tags": [],
+        "items": [
+            {"id": "new_sub", "title": "New subtask", "status": 0, "completedTime": 0, "isAllDay": false, "sortOrder": 0, "timeZone": ""}
+        ],
+        "reminders": [],
+        "sortOrder": 0,
+        "timeZone": ""
+    }"##;
+
+    Mock::given(method("POST"))
+        .and(path("/task/task123"))
+        .and(bearer_token("test_token"))
+        .and(header("content-type", "application/json"))
+        .respond_with(ResponseTemplate::new(200).set_body_string(response_body))
+        .mount(&mock_server)
+        .await;
+
+    let client = test_client(&mock_server);
+    let request = UpdateTaskRequest {
+        id: "task123".to_string(),
+        project_id: "proj456".to_string(),
+        title: None,
+        content: None,
+        is_all_day: None,
+        start_date: None,
+        due_date: None,
+        priority: None,
+        time_zone: None,
+        tags: None,
+        status: None,
+        items: Some(vec![ChecklistItemRequest::new("New subtask")]),
+    };
+
+    let task = client.update_task("task123", &request).await.unwrap();
+
+    assert_eq!(task.id, "task123");
+    assert_eq!(task.items.len(), 1);
+    assert_eq!(task.items[0].title, "New subtask");
 }

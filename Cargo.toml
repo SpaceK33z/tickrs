@@ -14,51 +14,25 @@ documentation = "https://docs.rs/tickrs"
 rust-version = "1.87"
 
 [dependencies]
-# CLI framework
 clap = { version = "4.5", features = ["derive", "env"] }
-
-# Async runtime
 tokio = { version = "1", features = ["full"] }
-
-# HTTP client
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
-
-# Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
-# Date/time handling
 chrono = { version = "0.4", features = ["serde"] }
 chrono-tz = "0.10"
-
-# Error handling
 anyhow = "1"
 thiserror = "2"
-
-# Configuration paths
 dirs = "6"
-
-# Config file parsing
 toml = "0.8"
-
-# Environment variables
 dotenvy = "0.15"
-
-# Natural language date parsing
 dateparser = "0.2"
-
-# OAuth 2.0
 oauth2 = "5"
-
-# Logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-
-# Open browser for OAuth
 webbrowser = "1"
 
 [profile.release]
-# Optimize for size while maintaining good performance
 opt-level = "z"        # Optimize for binary size
 lto = true             # Enable link-time optimization
 codegen-units = 1      # Single codegen unit for better optimization
@@ -66,12 +40,8 @@ panic = "abort"        # Don't include panic unwinding code
 strip = true           # Strip symbols from binary
 
 [dev-dependencies]
-# Mock server for integration tests
 wiremock = "0.6"
-# Async test runtime
 tokio-test = "0.4"
-# CLI testing
 assert_cmd = "2"
 predicates = "3"
-# Temp directories for test isolation
 tempfile = "3"
