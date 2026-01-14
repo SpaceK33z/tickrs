@@ -611,3 +611,80 @@ Added comprehensive integration tests for the API client using wiremock mock ser
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 13 "API client with mock server" requirement complete
+
+## 2026-01-14: Added CLI integration tests with test fixtures (Phase 13)
+
+### What was done
+Added comprehensive CLI integration tests using `assert_cmd` and `predicates` crates to complete the "CLI commands with test fixtures" item in PRD Phase 13.
+
+### Tests Added (`tests/cli_tests.rs`)
+
+#### Version Command Tests (3 tests)
+1. `test_version_command_text_output` - Tests text output shows version info
+2. `test_version_command_json_output` - Tests JSON output format
+3. `test_version_command_quiet` - Tests quiet flag suppresses output
+
+#### Help Output Tests (4 tests)
+1. `test_help_output` - Tests main help shows all commands
+2. `test_project_help_output` - Tests project subcommand help
+3. `test_task_help_output` - Tests task subcommand help
+4. `test_subtask_help_output` - Tests subtask subcommand help
+
+#### Reset Command Tests (2 tests)
+1. `test_reset_nothing_to_reset_text` - Tests text output when nothing to reset
+2. `test_reset_nothing_to_reset_json` - Tests JSON output when nothing to reset
+
+#### Init Command Tests (2 tests)
+1. `test_init_missing_client_id` - Tests missing TICKTICK_CLIENT_ID error
+2. `test_init_missing_client_secret` - Tests missing TICKTICK_CLIENT_SECRET error
+
+#### Project Command Tests (6 tests)
+1. `test_project_list_no_token_text` - Tests auth error in text mode
+2. `test_project_list_no_token_json` - Tests auth error in JSON mode
+3. `test_project_show_no_token` - Tests show without auth
+4. `test_project_create_requires_name` - Tests --name is required
+5. `test_project_use_requires_argument` - Tests argument required
+6. `test_project_delete_requires_id` - Tests ID required
+
+#### Task Command Tests (6 tests)
+1. `test_task_list_no_project` - Tests project ID required error
+2. `test_task_create_requires_title` - Tests --title is required
+3. `test_task_show_requires_id` - Tests ID required
+4. `test_task_delete_requires_id` - Tests ID required
+5. `test_task_complete_requires_id` - Tests ID required
+6. `test_task_uncomplete_requires_id` - Tests ID required
+
+#### Subtask Command Tests (1 test)
+1. `test_subtask_list_requires_task_id` - Tests task ID required
+
+#### Global Flags Tests (5 tests)
+1. `test_json_flag_position_before_command` - Tests --json before subcommand
+2. `test_verbose_flag` - Tests --verbose flag
+3. `test_quiet_flag` - Tests --quiet flag
+4. `test_short_verbose_flag` - Tests -v short flag
+5. `test_short_quiet_flag` - Tests -q short flag
+
+#### Command Alias Tests (2 tests)
+1. `test_project_list_alias_ls` - Tests `ls` alias for list
+2. `test_task_create_alias_add` - Tests `add` alias for create
+
+#### Invalid Input Tests (3 tests)
+1. `test_invalid_command` - Tests unknown command fails
+2. `test_invalid_project_subcommand` - Tests unknown project subcommand
+3. `test_invalid_task_subcommand` - Tests unknown task subcommand
+
+#### Exit Code Tests (3 tests)
+1. `test_success_exit_code` - Tests exit code 0 on success
+2. `test_failure_exit_code_invalid_command` - Tests non-zero on error
+3. `test_failure_exit_code_missing_required_arg` - Tests non-zero on missing args
+
+### Changes Made
+- `Cargo.toml`: Added `assert_cmd`, `predicates`, `tempfile` dev dependencies
+- `tests/cli_tests.rs`: Created new file with 37 CLI integration tests
+- `plans/PRD.md`: Marked "CLI commands with test fixtures" as complete
+
+### Results
+- All 194 tests pass (138 unit + 19 API integration + 37 CLI integration)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 13 "CLI commands with test fixtures" requirement complete

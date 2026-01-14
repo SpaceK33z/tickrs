@@ -957,7 +957,7 @@ Tags: urgent, work
   - [x] Output: JSON/text formatting
 - [x] Write integration tests
   - [x] API client with mock server
-  - [ ] CLI commands with test fixtures
+  - [x] CLI commands with test fixtures
   - [ ] OAuth flow simulation
 - [x] Add error handling coverage
   - [x] Network errors

@@ -62,3 +62,8 @@ webbrowser = "1"
 wiremock = "0.6"
 # Async test runtime
 tokio-test = "0.4"
+# CLI testing
+assert_cmd = "2"
+predicates = "3"
+# Temp directories for test isolation
+tempfile = "3"
