@@ -950,11 +950,11 @@ Tags: urgent, work
 ### Phase 13: Testing & Quality Assurance
 **Goal:** Comprehensive testing and error handling
 
-- [ ] Write unit tests for all modules
-  - [ ] Models: JSON serialization/deserialization
+- [x] Write unit tests for all modules
+  - [x] Models: JSON serialization/deserialization
   - [ ] Config: File operations
-  - [ ] Utils: Date parsing edge cases
-  - [ ] Output: JSON/text formatting
+  - [x] Utils: Date parsing edge cases
+  - [x] Output: JSON/text formatting
 - [ ] Write integration tests
   - [ ] API client with mock server
   - [ ] CLI commands with test fixtures

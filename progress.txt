@@ -502,3 +502,37 @@ Added comprehensive unit tests for error conversion functions (`From` trait impl
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 13 "Add error handling coverage" requirement complete
+
+## 2026-01-14: Added date parsing edge case unit tests (Phase 13)
+
+### What was done
+Added comprehensive unit tests for date parsing edge cases to complete the "Utils: Date parsing edge cases" item in PRD Phase 13.
+
+### Tests Added (`src/utils/date_parser.rs`)
+1. `test_parse_yesterday` - Tests parsing "yesterday" keyword
+2. `test_parse_next_week` - Tests parsing "next week" keyword
+3. `test_parse_next_month` - Tests parsing "next month" keyword
+4. `test_parse_in_hours` - Tests parsing "in X hours" format
+5. `test_parse_in_minutes` - Tests parsing "in X minutes" format
+6. `test_parse_in_weeks` - Tests parsing "in X weeks" format
+7. `test_parse_in_months` - Tests parsing "in X months" format
+8. `test_parse_case_insensitive` - Tests case-insensitive parsing (TODAY, Tomorrow, etc.)
+9. `test_parse_whitespace_handling` - Tests trimming of leading/trailing whitespace
+10. `test_parse_singular_units` - Tests singular unit forms (day, week, hour, minute, month)
+11. `test_parse_min_abbreviation` - Tests min/mins abbreviation for minutes
+12. `test_parse_future_date_valid` - Tests parse_future_date with valid future date
+13. `test_parse_future_date_past` - Tests parse_future_date rejects past dates
+14. `test_parse_date_with_timezone_datetime` - Tests datetime with timezone context
+15. `test_format_datetime_invalid_timezone_fallback` - Tests fallback to UTC on invalid timezone
+16. `test_parse_incomplete_relative_time` - Tests rejection of incomplete "in X" formats
+17. `test_parse_invalid_relative_unit` - Tests rejection of invalid time units
+
+### Changes Made
+- `src/utils/date_parser.rs`: Added 17 new tests for date parsing edge cases
+- `plans/PRD.md`: Marked "Utils: Date parsing edge cases" as complete
+
+### Results
+- All 124 tests pass (17 new tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 13 "Utils: Date parsing edge cases" requirement complete

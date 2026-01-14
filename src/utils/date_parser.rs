@@ -315,4 +315,165 @@ mod tests {
         let err = DateParseError::PastDate("yesterday".to_string());
         assert!(err.to_string().contains("past"));
     }
+
+    // === Additional edge case tests for Phase 13 ===
+
+    #[test]
+    fn test_parse_yesterday() {
+        let result = parse_date("yesterday");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let yesterday = Utc::now().date_naive() - chrono::Duration::days(1);
+        assert_eq!(dt.date_naive(), yesterday);
+    }
+
+    #[test]
+    fn test_parse_next_week() {
+        let result = parse_date("next week");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let next_week = Utc::now().date_naive() + chrono::Duration::weeks(1);
+        assert_eq!(dt.date_naive(), next_week);
+    }
+
+    #[test]
+    fn test_parse_next_month() {
+        let result = parse_date("next month");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let next_month = Utc::now().date_naive() + chrono::Duration::days(30);
+        assert_eq!(dt.date_naive(), next_month);
+    }
+
+    #[test]
+    fn test_parse_in_hours() {
+        let before = Utc::now();
+        let result = parse_date("in 2 hours");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        // Should be approximately 2 hours from now
+        let diff = dt - before;
+        assert!(diff.num_hours() >= 1 && diff.num_hours() <= 2);
+    }
+
+    #[test]
+    fn test_parse_in_minutes() {
+        let before = Utc::now();
+        let result = parse_date("in 30 minutes");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        // Should be approximately 30 minutes from now
+        let diff = dt - before;
+        assert!(diff.num_minutes() >= 29 && diff.num_minutes() <= 30);
+    }
+
+    #[test]
+    fn test_parse_in_weeks() {
+        let result = parse_date("in 2 weeks");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let expected = Utc::now().date_naive() + chrono::Duration::weeks(2);
+        assert_eq!(dt.date_naive(), expected);
+    }
+
+    #[test]
+    fn test_parse_in_months() {
+        let result = parse_date("in 3 months");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let expected = Utc::now().date_naive() + chrono::Duration::days(90);
+        assert_eq!(dt.date_naive(), expected);
+    }
+
+    #[test]
+    fn test_parse_case_insensitive() {
+        // All these should work the same
+        assert!(parse_date("TODAY").is_ok());
+        assert!(parse_date("Today").is_ok());
+        assert!(parse_date("TOMORROW").is_ok());
+        assert!(parse_date("Tomorrow").is_ok());
+        assert!(parse_date("IN 3 DAYS").is_ok());
+        assert!(parse_date("In 3 Days").is_ok());
+    }
+
+    #[test]
+    fn test_parse_whitespace_handling() {
+        // Leading/trailing whitespace should be trimmed
+        let result = parse_date("  tomorrow  ");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let tomorrow = Utc::now().date_naive() + chrono::Duration::days(1);
+        assert_eq!(dt.date_naive(), tomorrow);
+    }
+
+    #[test]
+    fn test_parse_singular_units() {
+        // Test singular forms of units
+        assert!(parse_date("in 1 day").is_ok());
+        assert!(parse_date("in 1 week").is_ok());
+        assert!(parse_date("in 1 hour").is_ok());
+        assert!(parse_date("in 1 minute").is_ok());
+        assert!(parse_date("in 1 month").is_ok());
+    }
+
+    #[test]
+    fn test_parse_min_abbreviation() {
+        // Test min/mins abbreviation
+        let before = Utc::now();
+        let result = parse_date("in 15 min");
+        assert!(result.is_ok());
+        let dt = result.unwrap();
+        let diff = dt - before;
+        assert!(diff.num_minutes() >= 14 && diff.num_minutes() <= 15);
+
+        let result = parse_date("in 15 mins");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_future_date_valid() {
+        // A date far in the future should pass
+        let result = parse_future_date("in 30 days");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_future_date_past() {
+        // Yesterday should fail future date validation
+        let result = parse_future_date("yesterday");
+        assert!(result.is_err());
+        match result {
+            Err(DateParseError::PastDate(_)) => {}
+            _ => panic!("Expected PastDate error"),
+        }
+    }
+
+    #[test]
+    fn test_parse_date_with_timezone_datetime() {
+        // Test parsing a full datetime with timezone context
+        let result = parse_date_with_timezone("2025-06-15T14:30:00Z", "America/Los_Angeles");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_format_datetime_invalid_timezone_fallback() {
+        // Invalid timezone should fall back to UTC
+        let dt = Utc.with_ymd_and_hms(2025, 1, 15, 14, 30, 0).unwrap();
+        let formatted = format_datetime(&dt, Some("Invalid/TZ"));
+        assert_eq!(formatted, "2025-01-15 14:30:00 UTC");
+    }
+
+    #[test]
+    fn test_parse_incomplete_relative_time() {
+        // "in" without enough parts should fail
+        let result = parse_date("in 3");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_invalid_relative_unit() {
+        // Invalid unit should fail
+        let result = parse_date("in 3 foobar");
+        assert!(result.is_err());
+    }
 }
