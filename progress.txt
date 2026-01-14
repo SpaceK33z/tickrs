@@ -688,3 +688,54 @@ Added comprehensive CLI integration tests using `assert_cmd` and `predicates` cr
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 13 "CLI commands with test fixtures" requirement complete
+
+## 2026-01-14: Added OAuth flow simulation tests (Phase 13)
+
+### What was done
+Added comprehensive integration tests for OAuth flow simulation to complete the final item in PRD Phase 13's integration tests section.
+
+### Tests Added (`tests/oauth_tests.rs`)
+
+#### Authorization URL Generation Tests (4 tests)
+1. `test_auth_url_generation` - Verifies auth URL contains OAuth endpoint, client_id, redirect_uri, state, and scopes
+2. `test_auth_url_contains_response_type` - Verifies response_type=code for authorization code flow
+3. `test_csrf_token_uniqueness` - Verifies each auth request generates unique CSRF tokens
+4. `test_auth_url_uses_https` - Verifies OAuth URL uses HTTPS
+
+#### Token Exchange Tests (2 tests)
+1. `test_token_exchange_success` - Tests mock server token endpoint response
+2. `test_token_exchange_error_response` - Tests error response handling from token endpoint
+
+#### Callback Parsing Tests (5 tests)
+1. `test_callback_parsing_valid_request` - Tests parsing code and state from callback URL
+2. `test_callback_parsing_error_response` - Tests recognition of error callbacks
+3. `test_callback_parsing_missing_code` - Tests handling of missing code parameter
+4. `test_callback_parsing_missing_state` - Tests handling of missing state parameter
+5. `test_callback_url_encoding` - Tests URL decoding of callback parameters
+
+#### Callback Server Tests (1 test)
+1. `test_callback_server_accepts_connection` - Simulates OAuth redirect with TCP connection
+
+#### AuthHandler Construction Tests (3 tests)
+1. `test_auth_handler_creation_with_valid_credentials` - Tests handler with valid credentials
+2. `test_auth_handler_with_special_characters_in_credentials` - Tests special chars in client ID/secret
+3. `test_auth_handler_empty_credentials` - Tests handler with empty credentials
+
+#### OAuth Flow State Machine Tests (2 tests)
+1. `test_oauth_flow_state_transitions` - Documents expected OAuth flow states
+2. `test_csrf_token_format` - Verifies CSRF token length and format
+
+#### Security Tests (2 tests)
+1. `test_csrf_protection_different_tokens` - Verifies all generated tokens are unique
+2. `test_redirect_uri_is_localhost` - Verifies redirect URI uses localhost
+
+### Changes Made
+- `tests/oauth_tests.rs`: Created new file with 19 OAuth flow simulation tests
+- `plans/PRD.md`: Marked "OAuth flow simulation" as complete
+
+### Results
+- All 213 tests pass (138 unit + 19 API integration + 37 CLI integration + 19 OAuth tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 13 "OAuth flow simulation" requirement complete
+- Phase 13 (Testing & Quality Assurance) is now FULLY COMPLETE

@@ -958,7 +958,7 @@ Tags: urgent, work
 - [x] Write integration tests
   - [x] API client with mock server
   - [x] CLI commands with test fixtures
-  - [ ] OAuth flow simulation
+  - [x] OAuth flow simulation
 - [x] Add error handling coverage
   - [x] Network errors
   - [x] Invalid JSON responses
