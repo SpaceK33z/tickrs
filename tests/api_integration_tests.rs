@@ -3,11 +3,11 @@
 use wiremock::matchers::{bearer_token, header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-use tickrs::api::{
+use ticktickrs::api::{
     CreateProjectRequest, CreateTaskRequest, TickTickClient, UpdateProjectRequest,
     UpdateTaskRequest,
 };
-use tickrs::models::{ChecklistItemRequest, Priority};
+use ticktickrs::models::{ChecklistItemRequest, Priority};
 
 /// Helper to create a test client pointing at mock server
 fn test_client(server: &MockServer) -> TickTickClient {

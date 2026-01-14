@@ -26,7 +26,7 @@ fn test_version_command_json_output() {
         .assert()
         .success()
         .stdout(predicate::str::contains(r#""success": true"#))
-        .stdout(predicate::str::contains(r#""name": "tickrs""#))
+        .stdout(predicate::str::contains(r#""name": "ticktickrs""#))
         .stdout(predicate::str::contains(r#""version": "0.1.0""#));
 }
 

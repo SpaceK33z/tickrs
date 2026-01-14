@@ -11,7 +11,7 @@ use std::time::Duration;
 use wiremock::matchers::{body_string_contains, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-use tickrs::api::AuthHandler;
+use ticktickrs::api::AuthHandler;
 
 // =============================================================================
 // Authorization URL Generation Tests
