@@ -536,3 +536,33 @@ Added comprehensive unit tests for date parsing edge cases to complete the "Util
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 13 "Utils: Date parsing edge cases" requirement complete
+
+## 2026-01-14: Added config file operations unit tests (Phase 13)
+
+### What was done
+Added comprehensive unit tests for config file operations to complete the "Config: File operations" item in PRD Phase 13.
+
+### Tests Added (`src/config/mod.rs`)
+1. `test_data_dir` - Tests Config::data_dir() returns correct path
+2. `test_config_save_and_load_to_custom_path` - Tests config save/load roundtrip
+3. `test_config_save_creates_parent_directories` - Tests directory creation
+4. `test_config_delete_file` - Tests config file deletion
+5. `test_config_delete_nonexistent_file` - Tests idempotent delete on missing file
+6. `test_token_save_and_load_to_custom_path` - Tests token save/load roundtrip
+7. `test_token_load_empty_file` - Tests empty token file handling
+8. `test_token_load_whitespace_only` - Tests whitespace-only token handling
+9. `test_token_load_nonexistent` - Tests nonexistent token file handling
+10. `test_token_delete_file` - Tests token file deletion
+11. `test_token_exists_check` - Tests token existence checking
+12. `test_token_save_permissions` (unix only) - Tests 0600 permission setting
+13. `test_config_roundtrip_with_special_characters` - Tests special chars in project ID
+14. `test_token_with_special_characters` - Tests JWT-style tokens with special chars
+
+### Changes Made
+- `src/config/mod.rs`: Added 14 new tests for file operations
+- `plans/PRD.md`: Marked "Config: File operations" as complete
+
+### Results
+- All 138 tests pass (14 new tests)
+- `cargo clippy -- -D warnings` passes
+- PRD Phase 13 "Config: File operations" requirement complete

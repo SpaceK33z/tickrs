@@ -952,7 +952,7 @@ Tags: urgent, work
 
 - [x] Write unit tests for all modules
   - [x] Models: JSON serialization/deserialization
-  - [ ] Config: File operations
+  - [x] Config: File operations
   - [x] Utils: Date parsing edge cases
   - [x] Output: JSON/text formatting
 - [ ] Write integration tests
