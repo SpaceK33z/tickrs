@@ -45,7 +45,32 @@ impl Task {
     }
 }
 
-/// Builder for creating new tasks
+/// Builder for creating new [`Task`] instances with a fluent API.
+///
+/// Use this builder when you need to construct a task programmatically
+/// with optional fields. The builder provides sensible defaults for
+/// all optional fields.
+///
+/// # Required Fields
+///
+/// - `project_id` - The project to add the task to
+/// - `title` - The task title
+///
+/// # Example
+///
+/// ```
+/// use tickrs::models::task::TaskBuilder;
+/// use tickrs::models::Priority;
+///
+/// let task = TaskBuilder::new("proj123", "Complete documentation")
+///     .content("Add doc comments to all public APIs")
+///     .priority(Priority::High)
+///     .tags(vec!["work".to_string(), "docs".to_string()])
+///     .build();
+///
+/// assert_eq!(task.title, "Complete documentation");
+/// assert_eq!(task.priority, Priority::High);
+/// ```
 #[derive(Default)]
 #[allow(dead_code)] // Available for external use; tested in tests
 pub struct TaskBuilder {
@@ -62,6 +87,12 @@ pub struct TaskBuilder {
 
 #[allow(dead_code)] // Builder methods available for external use; tested
 impl TaskBuilder {
+    /// Create a new TaskBuilder with required fields.
+    ///
+    /// # Arguments
+    ///
+    /// * `project_id` - The ID of the project to add the task to
+    /// * `title` - The task title
     pub fn new(project_id: impl Into<String>, title: impl Into<String>) -> Self {
         Self {
             project_id: project_id.into(),
@@ -70,41 +101,52 @@ impl TaskBuilder {
         }
     }
 
+    /// Set the task description/notes.
     pub fn content(mut self, content: impl Into<String>) -> Self {
         self.content = Some(content.into());
         self
     }
 
+    /// Set the task priority level.
     pub fn priority(mut self, priority: Priority) -> Self {
         self.priority = priority;
         self
     }
 
+    /// Set the task due date.
     pub fn due_date(mut self, due: DateTime<Utc>) -> Self {
         self.due_date = Some(due);
         self
     }
 
+    /// Set the task start date.
     pub fn start_date(mut self, start: DateTime<Utc>) -> Self {
         self.start_date = Some(start);
         self
     }
 
+    /// Set whether this is an all-day task (no specific time).
     pub fn all_day(mut self, is_all_day: bool) -> Self {
         self.is_all_day = is_all_day;
         self
     }
 
+    /// Set the task timezone (IANA format, e.g., "America/New_York").
     pub fn time_zone(mut self, tz: impl Into<String>) -> Self {
         self.time_zone = Some(tz.into());
         self
     }
 
+    /// Set the task tags.
     pub fn tags(mut self, tags: Vec<String>) -> Self {
         self.tags = tags;
         self
     }
 
+    /// Build the [`Task`] instance.
+    ///
+    /// The returned task will have an empty `id` field, which will be
+    /// populated by the API when the task is created.
     pub fn build(self) -> Task {
         Task {
             id: String::new(), // Will be set by API

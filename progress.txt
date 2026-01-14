@@ -813,3 +813,44 @@ Created comprehensive CONTRIBUTING.md documentation as specified in PRD Phase 14
 - All 213 tests pass
 - `cargo clippy -- -D warnings` passes
 - PRD Phase 14 "Write CONTRIBUTING.md" requirement complete
+
+## 2026-01-14: Added inline documentation (Phase 14)
+
+### What was done
+Added comprehensive inline documentation (doc comments) to all public types, functions, and modules as specified in PRD Phase 14.
+
+### Documentation Added
+
+#### Module-Level Documentation
+- `src/api/mod.rs`: Added module-level doc comment with overview of types and example code
+- `src/models/mod.rs`: Added module-level doc comment explaining domain models
+
+#### API Request Struct Documentation
+- `CreateProjectRequest`: Added struct doc comment with fields, required/optional, and example
+- `UpdateProjectRequest`: Added struct doc comment with fields and example
+- `CreateTaskRequest`: Added struct doc comment with fields, required/optional, and example
+- `UpdateTaskRequest`: Added struct doc comment with fields and example
+
+#### TaskBuilder Documentation
+- Added comprehensive struct doc comment with required fields and usage example
+- `TaskBuilder::new()`: Documented with arguments
+- `TaskBuilder::content()`, `priority()`, `due_date()`, `start_date()`, `all_day()`, `time_zone()`, `tags()`: Added doc comments
+- `TaskBuilder::build()`: Documented with return value notes
+
+#### TokenStorage Documentation
+- Added struct doc comment with storage location and comprehensive example showing save/load/exists/delete operations
+
+### Changes Made
+- `src/api/mod.rs`: Added module-level documentation with example
+- `src/api/project.rs`: Enhanced doc comments for CreateProjectRequest, UpdateProjectRequest
+- `src/api/task.rs`: Enhanced doc comments for CreateTaskRequest, UpdateTaskRequest
+- `src/models/mod.rs`: Added module-level documentation
+- `src/models/task.rs`: Added TaskBuilder and method documentation
+- `src/config/mod.rs`: Added TokenStorage struct documentation
+- `plans/PRD.md`: Marked "Add inline documentation" section as complete
+
+### Results
+- All 213+ tests pass (including 7 doc tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 14 "Add inline documentation" requirement complete

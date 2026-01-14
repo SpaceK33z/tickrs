@@ -101,7 +101,39 @@ impl Config {
     }
 }
 
-/// Token storage operations
+/// Secure storage for OAuth access tokens.
+///
+/// Handles reading and writing the access token to a secure location
+/// with restricted file permissions (0600 on Unix systems).
+///
+/// # Storage Location
+///
+/// The token is stored at `~/.local/share/tickrs/token` (or platform equivalent).
+///
+/// # Example
+///
+/// ```no_run
+/// use tickrs::config::TokenStorage;
+///
+/// # fn example() -> anyhow::Result<()> {
+/// // Save a token
+/// TokenStorage::save("your_access_token")?;
+///
+/// // Load the token
+/// if let Some(token) = TokenStorage::load()? {
+///     println!("Token loaded successfully");
+/// }
+///
+/// // Check if token exists
+/// if TokenStorage::exists()? {
+///     println!("Token file exists");
+/// }
+///
+/// // Delete the token
+/// TokenStorage::delete()?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct TokenStorage;
 
 impl TokenStorage {

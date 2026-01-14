@@ -4,29 +4,76 @@ use crate::api::client::{ApiError, TickTickClient};
 use crate::models::{Project, ProjectData, INBOX_PROJECT_ID};
 use tracing::{debug, instrument};
 
-/// Request body for creating a project
+/// Request body for creating a new project.
+///
+/// # Required Fields
+///
+/// - `name` - The project name (must not be empty)
+///
+/// # Optional Fields
+///
+/// - `color` - Hex color code (e.g., "#FF5733")
+/// - `view_mode` - Display mode: "list", "kanban", or "timeline"
+/// - `kind` - Project type: "task" or "note"
+///
+/// # Example
+///
+/// ```
+/// use tickrs::api::CreateProjectRequest;
+///
+/// let request = CreateProjectRequest {
+///     name: "My Project".to_string(),
+///     color: Some("#00AAFF".to_string()),
+///     view_mode: Some("list".to_string()),
+///     kind: None,
+/// };
+/// ```
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateProjectRequest {
+    /// Project name (required)
     pub name: String,
+    /// Hex color code (e.g., "#FF5733")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
+    /// Display mode: "list", "kanban", or "timeline"
     #[serde(skip_serializing_if = "Option::is_none")]
     pub view_mode: Option<String>,
+    /// Project type: "task" or "note"
     #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
 }
 
-/// Request body for updating a project
+/// Request body for updating an existing project.
+///
+/// All fields are optional - only provided fields will be updated.
+/// The INBOX project cannot be updated.
+///
+/// # Example
+///
+/// ```
+/// use tickrs::api::UpdateProjectRequest;
+///
+/// let request = UpdateProjectRequest {
+///     name: Some("Renamed Project".to_string()),
+///     color: None,
+///     closed: Some(false),
+///     view_mode: None,
+/// };
+/// ```
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateProjectRequest {
+    /// New project name
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Hex color code (e.g., "#FF5733")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
+    /// Whether the project is archived
     #[serde(skip_serializing_if = "Option::is_none")]
     pub closed: Option<bool>,
+    /// Display mode: "list", "kanban", or "timeline"
     #[serde(skip_serializing_if = "Option::is_none")]
     pub view_mode: Option<String>,
 }

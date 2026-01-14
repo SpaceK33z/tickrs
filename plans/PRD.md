@@ -1001,10 +1001,10 @@ Tags: urgent, work
   - [x] Code style guide
   - [x] Testing guidelines
   - [x] Pull request process
-- [ ] Add inline documentation
-  - [ ] All public functions have doc comments
-  - [ ] Module-level documentation
-  - [ ] Example code in doc comments
+- [x] Add inline documentation
+  - [x] All public functions have doc comments
+  - [x] Module-level documentation
+  - [x] Example code in doc comments
 - [ ] Create usage examples
   - [ ] `examples/automation.rs` - AI agent usage
   - [ ] `examples/json_parsing.rs` - Parsing JSON output

@@ -4,52 +4,125 @@ use crate::api::client::{ApiError, TickTickClient};
 use crate::models::{Status, Task};
 use tracing::{debug, instrument};
 
-/// Request body for creating a task
+/// Request body for creating a new task.
+///
+/// # Required Fields
+///
+/// - `title` - The task title
+/// - `project_id` - ID of the project to add the task to (use "inbox" for Inbox)
+///
+/// # Optional Fields
+///
+/// - `content` - Task description/notes
+/// - `priority` - Priority level: 0 (none), 1 (low), 3 (medium), 5 (high)
+/// - `due_date` / `start_date` - ISO 8601 datetime strings
+/// - `tags` - List of tag names
+/// - `is_all_day` - Whether this is an all-day task
+/// - `time_zone` - IANA timezone (e.g., "America/New_York")
+///
+/// # Example
+///
+/// ```
+/// use tickrs::api::CreateTaskRequest;
+///
+/// let request = CreateTaskRequest {
+///     title: "Complete report".to_string(),
+///     project_id: "inbox".to_string(),
+///     content: Some("Q4 financial summary".to_string()),
+///     is_all_day: None,
+///     start_date: None,
+///     due_date: Some("2026-01-15T14:00:00+0000".to_string()),
+///     priority: Some(3), // Medium
+///     time_zone: None,
+///     tags: Some(vec!["work".to_string()]),
+/// };
+/// ```
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateTaskRequest {
+    /// Task title (required)
     pub title: String,
+    /// Project ID to add the task to (required, use "inbox" for Inbox)
     pub project_id: String,
+    /// Task description/notes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
+    /// Whether this is an all-day task (no specific time)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_all_day: Option<bool>,
+    /// Start date in ISO 8601 format
     #[serde(skip_serializing_if = "Option::is_none")]
     pub start_date: Option<String>,
+    /// Due date in ISO 8601 format
     #[serde(skip_serializing_if = "Option::is_none")]
     pub due_date: Option<String>,
+    /// Priority level: 0 (none), 1 (low), 3 (medium), 5 (high)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub priority: Option<i32>,
+    /// IANA timezone (e.g., "America/New_York")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub time_zone: Option<String>,
+    /// List of tag names
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
 }
 
-/// Request body for updating a task
+/// Request body for updating an existing task.
+///
+/// Both `id` and `project_id` are required to identify the task.
+/// All other fields are optional - only provided fields will be updated.
+///
+/// # Example
+///
+/// ```
+/// use tickrs::api::UpdateTaskRequest;
+///
+/// let request = UpdateTaskRequest {
+///     id: "task123".to_string(),
+///     project_id: "proj456".to_string(),
+///     title: Some("Updated title".to_string()),
+///     content: None,
+///     is_all_day: None,
+///     start_date: None,
+///     due_date: None,
+///     priority: Some(5), // High
+///     time_zone: None,
+///     tags: None,
+///     status: None,
+/// };
+/// ```
 #[derive(Debug, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTaskRequest {
-    /// Task ID (required for update)
+    /// Task ID (required)
     pub id: String,
-    /// Project ID (required for update)
+    /// Project ID (required)
     pub project_id: String,
+    /// New task title
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
+    /// Task description/notes
     #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
+    /// Whether this is an all-day task
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_all_day: Option<bool>,
+    /// Start date in ISO 8601 format
     #[serde(skip_serializing_if = "Option::is_none")]
     pub start_date: Option<String>,
+    /// Due date in ISO 8601 format
     #[serde(skip_serializing_if = "Option::is_none")]
     pub due_date: Option<String>,
+    /// Priority level: 0 (none), 1 (low), 3 (medium), 5 (high)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub priority: Option<i32>,
+    /// IANA timezone (e.g., "America/New_York")
     #[serde(skip_serializing_if = "Option::is_none")]
     pub time_zone: Option<String>,
+    /// List of tag names
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    /// Completion status: 0 (incomplete), 2 (complete)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<i32>,
 }
