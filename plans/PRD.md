@@ -937,7 +937,7 @@ Tags: urgent, work
     - [x] Support `--json` output
     - [x] Text: display as table with ID, title, status
 - [x] Note: Subtask create/update/delete would require full task update
-  - [ ] Document this limitation in README
+  - [x] Document this limitation in README
   - [ ] Optionally implement as task update with modified items array
 - [ ] Write integration tests
 

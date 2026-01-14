@@ -158,8 +158,7 @@ fn batch_complete_tasks(project_id: &str, task_ids: &[&str]) -> Vec<Result<(), S
         .iter()
         .map(|task_id| {
             let output = run_tickrs(&["task", "complete", task_id, "--project-id", project_id])?;
-            let _: serde_json::Value =
-                serde_json::from_str(&output).map_err(|e| e.to_string())?;
+            let _: serde_json::Value = serde_json::from_str(&output).map_err(|e| e.to_string())?;
             Ok(())
         })
         .collect()
@@ -178,8 +177,7 @@ fn batch_delete_tasks(project_id: &str, task_ids: &[&str]) -> Vec<Result<(), Str
                 project_id,
                 "--force",
             ])?;
-            let _: serde_json::Value =
-                serde_json::from_str(&output).map_err(|e| e.to_string())?;
+            let _: serde_json::Value = serde_json::from_str(&output).map_err(|e| e.to_string())?;
             Ok(())
         })
         .collect()
@@ -301,7 +299,11 @@ fn main() {
         .and_then(|json| parse_response::<TaskListData>(&json))
     {
         Ok(data) => {
-            for t in data.tasks.iter().filter(|t| t.title.starts_with("Batch task")) {
+            for t in data
+                .tasks
+                .iter()
+                .filter(|t| t.title.starts_with("Batch task"))
+            {
                 let status = if t.status == 2 { "[x]" } else { "[ ]" };
                 println!("   {} {}", status, t.title);
             }

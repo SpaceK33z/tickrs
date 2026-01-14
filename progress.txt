@@ -973,3 +973,24 @@ Added release profile optimizations to Cargo.toml to significantly reduce binary
 - All 213 tests pass
 - `cargo clippy -- -D warnings` passes
 - Release binary builds and runs correctly
+
+## 2026-01-14: Documented subtask limitation in README (Phase 12)
+
+### What was done
+Added documentation about subtask limitations to README.md as specified in PRD Phase 12.
+
+### Documentation Added
+- Added note in the "Subtask Commands" section explaining that direct create/update/delete operations for subtasks are not supported by the TickTick API
+- Explained that subtasks are stored as part of the parent task's `items` array
+- Mentioned that to modify subtasks, users would need to update the parent task using `tickrs task update`
+
+### Changes Made
+- `README.md`: Added note block about subtask limitations under the subtask list command
+- `plans/PRD.md`: Marked "Document this limitation in README" as complete
+- Fixed code formatting in example files (cargo fmt)
+
+### Results
+- All 213+ tests pass (including 7 doc tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 12 "Document this limitation in README" requirement complete

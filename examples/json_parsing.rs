@@ -219,11 +219,7 @@ fn main() {
                 if let Some(data) = response.data {
                     println!("   Found {} tasks:", data.count);
                     for t in &data.tasks {
-                        let status = if t.status == 2 {
-                            "complete"
-                        } else {
-                            "pending"
-                        };
+                        let status = if t.status == 2 { "complete" } else { "pending" };
                         let priority = match t.priority {
                             5 => "high",
                             3 => "medium",

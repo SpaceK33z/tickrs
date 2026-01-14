@@ -250,6 +250,8 @@ tickrs subtask list task123
 tickrs subtask list task123 --json
 ```
 
+> **Note:** Direct create/update/delete operations for subtasks are not supported by the TickTick API. Subtasks are stored as part of the parent task's `items` array. To modify subtasks, you would need to update the parent task with a modified items array using `tickrs task update`.
+
 ## JSON Output
 
 All commands support `--json` for structured output suitable for AI agents and scripts.
