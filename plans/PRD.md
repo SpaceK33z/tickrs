@@ -1035,18 +1035,18 @@ Tags: urgent, work
   - [ ] Test on Linux
   - [ ] Test on macOS
   - [ ] Test on Windows (if supported)
-- [ ] Create release artifacts
-  - [ ] Build optimized binaries
-  - [ ] Create checksums
-  - [ ] Package for distribution
-- [ ] Set up release process
-  - [ ] Semantic versioning
-  - [ ] Changelog generation
-  - [ ] GitHub releases
-- [ ] Consider distribution channels
-  - [ ] Cargo.io publishing
+- [x] Create release artifacts
+  - [x] Build optimized binaries
+  - [x] Create checksums
+  - [x] Package for distribution
+- [x] Set up release process
+  - [x] Semantic versioning
+  - [x] Changelog generation
+  - [x] GitHub releases
+- [x] Consider distribution channels
+  - [x] Cargo.io publishing
   - [ ] Homebrew formula
-  - [ ] Binary releases on GitHub
+  - [x] Binary releases on GitHub
 
 **Deliverables:**
 - v1.0.0 release

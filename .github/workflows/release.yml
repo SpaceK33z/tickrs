@@ -13,9 +13,72 @@ jobs:
     name: Run CI
     uses: ./.github/workflows/ci.yml
 
+  build-artifacts:
+    name: Build (${{ matrix.target }})
+    needs: ci
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive: tar.gz
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            archive: zip
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+
+      - name: Build release binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Create archive (Unix)
+        if: matrix.archive == 'tar.gz'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czvf ../../../tickrs-${{ matrix.target }}.tar.gz tickrs
+          cd ../../..
+
+      - name: Create archive (Windows)
+        if: matrix.archive == 'zip'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ../../../tickrs-${{ matrix.target }}.zip tickrs.exe
+          cd ../../..
+
+      - name: Generate checksum (Unix)
+        if: runner.os != 'Windows'
+        run: shasum -a 256 tickrs-${{ matrix.target }}.* > tickrs-${{ matrix.target }}.sha256
+
+      - name: Generate checksum (Windows)
+        if: runner.os == 'Windows'
+        run: Get-FileHash tickrs-${{ matrix.target }}.zip -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  tickrs-${{ matrix.target }}.zip" } | Out-File -Encoding ASCII tickrs-${{ matrix.target }}.sha256
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tickrs-${{ matrix.target }}
+          path: |
+            tickrs-${{ matrix.target }}.*
+          if-no-files-found: error
+
   publish:
     name: Publish to crates.io
-    needs: ci
+    needs: build-artifacts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,14 +100,25 @@ jobs:
 
   github-release:
     name: Create GitHub Release
-    needs: publish
+    needs: [build-artifacts, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -la artifacts/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          files: |
+            artifacts/*

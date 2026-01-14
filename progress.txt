@@ -1011,3 +1011,41 @@ Updated the PRD to mark CLI integration test items as complete for Phases 10, 11
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phases 10, 11, 12 integration test items now correctly marked as complete
+
+## 2026-01-14: Added release artifacts to GitHub Actions workflow (Phase 15)
+
+### What was done
+Enhanced the GitHub Actions release workflow to build and publish cross-platform binaries with checksums when creating a release.
+
+### Features Added
+1. **Multi-platform binary builds**:
+   - Linux x86_64 (ubuntu-latest)
+   - macOS x86_64 (Intel)
+   - macOS aarch64 (Apple Silicon)
+   - Windows x86_64
+
+2. **Archive creation**:
+   - Unix platforms: `.tar.gz` archives
+   - Windows: `.zip` archives
+
+3. **Checksum generation**:
+   - SHA-256 checksums for each archive
+   - Checksums uploaded alongside binaries
+
+4. **GitHub Release integration**:
+   - All artifacts uploaded to GitHub Release
+   - Automatic release notes generation
+
+### Changes Made
+- `.github/workflows/release.yml`:
+  - Added `build-artifacts` job with matrix for 4 target platforms
+  - Added archive creation steps (tar.gz for Unix, zip for Windows)
+  - Added checksum generation for each platform
+  - Added artifact upload/download between jobs
+  - Updated `github-release` job to include all binary artifacts
+
+### Results
+- All 213+ tests pass
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 15 "Create release artifacts" and "Set up release process" marked complete
