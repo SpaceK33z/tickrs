@@ -1,5 +1,5 @@
 [package]
-name = "tickrs"
+name = "ticktickrs"
 version = "0.1.0"
 edition = "2021"
 authors = ["Kees Kluskens <kees@kees.im>"]
@@ -12,6 +12,11 @@ repository = "https://github.com/SpaceK33z/tickrs"
 homepage = "https://github.com/SpaceK33z/tickrs"
 documentation = "https://docs.rs/tickrs"
 rust-version = "1.87"
+publish = true
+
+[[bin]]
+name = "tickrs"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5", features = ["derive", "env"] }

@@ -1772,7 +1772,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tickrs"
+name = "ticktickrs"
 version = "0.1.0"
 dependencies = [
  "anyhow",

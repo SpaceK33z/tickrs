@@ -1,4 +1,4 @@
-# tickrs
+# ticktickrs
 
 [![CI](https://github.com/SpaceK33z/tickrs/actions/workflows/ci.yml/badge.svg)](https://github.com/SpaceK33z/tickrs/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
