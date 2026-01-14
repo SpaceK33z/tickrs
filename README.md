@@ -19,13 +19,6 @@ Inspired by [tickli](https://github.com/sho0pi/tickli), but minus the interactiv
 
 ## Installation
 
-### Homebrew (macOS/Linux)
-
-```bash
-brew tap SpaceK33z/tickrs https://github.com/SpaceK33z/tickrs
-brew install tickrs
-```
-
 ### From Releases
 
 Download the latest release for your platform from [GitHub Releases](https://github.com/SpaceK33z/tickrs/releases).
