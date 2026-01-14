@@ -739,3 +739,34 @@ Added comprehensive integration tests for OAuth flow simulation to complete the 
 - `cargo fmt --check` passes
 - PRD Phase 13 "OAuth flow simulation" requirement complete
 - Phase 13 (Testing & Quality Assurance) is now FULLY COMPLETE
+
+## 2026-01-14: Added comprehensive README.md documentation (Phase 14)
+
+### What was done
+Wrote comprehensive README.md documentation as specified in PRD Phase 14.
+
+### Documentation Sections Added
+1. **Features** - Overview of key capabilities (CRUD, JSON output, natural language dates, etc.)
+2. **Installation** - From source and with Cargo
+3. **Quick Start** - 4-step guide from OAuth setup to first commands
+4. **Command Reference** - Full documentation of all commands:
+   - Global options (--json, --verbose, --quiet)
+   - Root commands (init, reset, version)
+   - Project commands (list, show, use, create, update, delete)
+   - Task commands (list, show, create, update, delete, complete, uncomplete)
+   - Subtask commands (list)
+5. **JSON Output** - Success/error response format examples with error codes table
+6. **Natural Language Dates** - Table of supported expressions
+7. **Configuration** - Config file format, token storage, environment variables
+8. **Troubleshooting** - Common issues and solutions
+9. **AI Agent Usage** - Tips for automation with example bash script
+10. **Development** - Build, test, format, lint commands
+
+### Changes Made
+- `README.md`: Complete rewrite with comprehensive documentation
+- `plans/PRD.md`: Marked "Write comprehensive README.md" section as complete
+
+### Results
+- All 213 tests pass
+- `cargo clippy -- -D warnings` passes
+- PRD Phase 14 "Write comprehensive README.md" requirement complete
