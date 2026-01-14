@@ -11,6 +11,10 @@ pub enum TaskCommands {
         #[arg(long, short)]
         project_id: Option<String>,
 
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
+
         /// Filter by priority
         #[arg(long)]
         priority: Option<Priority>,
@@ -32,6 +36,10 @@ pub enum TaskCommands {
         /// Project ID (uses default if not specified)
         #[arg(long, short)]
         project_id: Option<String>,
+
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
     },
 
     /// Create a new task
@@ -44,6 +52,10 @@ pub enum TaskCommands {
         /// Project ID (uses default if not specified)
         #[arg(long, short)]
         project_id: Option<String>,
+
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
 
         /// Task description/content
         #[arg(long, short)]
@@ -86,6 +98,10 @@ pub enum TaskCommands {
         /// Project ID (uses default if not specified)
         #[arg(long, short)]
         project_id: Option<String>,
+
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
 
         /// New task title
         #[arg(long, short)]
@@ -133,6 +149,10 @@ pub enum TaskCommands {
         #[arg(long, short)]
         project_id: Option<String>,
 
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
+
         /// Skip confirmation prompt
         #[arg(long)]
         force: bool,
@@ -146,6 +166,10 @@ pub enum TaskCommands {
         /// Project ID (uses default if not specified)
         #[arg(long, short)]
         project_id: Option<String>,
+
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
     },
 
     /// Mark a task as incomplete
@@ -156,5 +180,9 @@ pub enum TaskCommands {
         /// Project ID (uses default if not specified)
         #[arg(long, short)]
         project_id: Option<String>,
+
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
     },
 }

@@ -3,7 +3,10 @@
 [![CI](https://github.com/SpaceK33z/tickrs/actions/workflows/ci.yml/badge.svg)](https://github.com/SpaceK33z/tickrs/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-An AI agent-optimized command-line interface for [TickTick](https://ticktick.com) task management. Built in Rust for speed and reliability, `tickrs` provides structured JSON output for automation and scripting.
+A command-line interface for [TickTick](https://ticktick.com) app.
+`tickrs` provides two modes, normal CLI output and structured JSON output for automation and scripting.
+
+Inspired by [tickli](https://github.com/sho0pi/tickli), but minus the interactive shell and some extra features.
 
 ## Features
 
@@ -109,7 +112,6 @@ tickrs task complete <task-id>
 | Option | Description |
 |--------|-------------|
 | `--json` | Output in JSON format for machine consumption |
-| `-v, --verbose` | Enable verbose logging |
 | `-q, --quiet` | Suppress all output (useful for scripts that only need exit codes) |
 
 ### Root Commands

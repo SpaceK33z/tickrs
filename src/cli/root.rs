@@ -13,10 +13,6 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub json: bool,
 
-    /// Enable verbose logging
-    #[arg(long, short, global = true)]
-    pub verbose: bool,
-
     /// Suppress all output (useful for scripts that only need exit codes)
     #[arg(long, short, global = true)]
     pub quiet: bool,

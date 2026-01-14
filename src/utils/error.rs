@@ -92,7 +92,7 @@ pub enum AppError {
     #[error("Invalid date format: {0}. Try 'tomorrow', '2025-01-15', or 'in 3 days'.")]
     InvalidDate(String),
 
-    #[error("No project specified. Use --project-id or run 'tickrs project use <name>' to set a default.")]
+    #[error("No project specified. Use --project-id, --project-name, or run 'tickrs project use <name>' to set a default.")]
     NoProject,
 
     #[error("{0}")]
@@ -208,6 +208,7 @@ mod tests {
 
         let err = AppError::NoProject;
         assert!(err.to_string().contains("--project-id"));
+        assert!(err.to_string().contains("--project-name"));
         assert!(err.to_string().contains("project use"));
     }
 

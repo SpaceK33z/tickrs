@@ -11,5 +11,9 @@ pub enum SubtaskCommands {
         /// Project ID (uses default if not specified)
         #[arg(long, short)]
         project_id: Option<String>,
+
+        /// Project name (alternative to project_id)
+        #[arg(long, short = 'n')]
+        project_name: Option<String>,
     },
 }

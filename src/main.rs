@@ -457,16 +457,20 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
     match cmd {
         TaskCommands::List {
             project_id,
+            project_name,
             priority,
             tag,
             status,
-        } => cmd_task_list(project_id, priority, tag, status, format, quiet).await,
-        TaskCommands::Show { id, project_id } => {
-            cmd_task_show(&id, project_id, format, quiet).await
-        }
+        } => cmd_task_list(project_id, project_name, priority, tag, status, format, quiet).await,
+        TaskCommands::Show {
+            id,
+            project_id,
+            project_name,
+        } => cmd_task_show(&id, project_id, project_name, format, quiet).await,
         TaskCommands::Create {
             title,
             project_id,
+            project_name,
             content,
             priority,
             tags,
@@ -477,14 +481,15 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
             timezone,
         } => {
             cmd_task_create(
-                &title, project_id, content, priority, tags, date, start, due, all_day, timezone,
-                format, quiet,
+                &title, project_id, project_name, content, priority, tags, date, start, due,
+                all_day, timezone, format, quiet,
             )
             .await
         }
         TaskCommands::Update {
             id,
             project_id,
+            project_name,
             title,
             content,
             priority,
@@ -496,49 +501,74 @@ async fn cmd_task(cmd: TaskCommands, format: OutputFormat, quiet: bool) -> anyho
             timezone,
         } => {
             cmd_task_update(
-                &id, project_id, title, content, priority, tags, date, start, due, all_day,
-                timezone, format, quiet,
+                &id, project_id, project_name, title, content, priority, tags, date, start, due,
+                all_day, timezone, format, quiet,
             )
             .await
         }
         TaskCommands::Delete {
             id,
             project_id,
+            project_name,
             force,
-        } => cmd_task_delete(&id, project_id, force, format, quiet).await,
-        TaskCommands::Complete { id, project_id } => {
-            cmd_task_complete(&id, project_id, format, quiet).await
-        }
-        TaskCommands::Uncomplete { id, project_id } => {
-            cmd_task_uncomplete(&id, project_id, format, quiet).await
-        }
+        } => cmd_task_delete(&id, project_id, project_name, force, format, quiet).await,
+        TaskCommands::Complete {
+            id,
+            project_id,
+            project_name,
+        } => cmd_task_complete(&id, project_id, project_name, format, quiet).await,
+        TaskCommands::Uncomplete {
+            id,
+            project_id,
+            project_name,
+        } => cmd_task_uncomplete(&id, project_id, project_name, format, quiet).await,
     }
 }
 
-/// Get the project ID from argument or config default
-fn get_project_id(project_id: Option<String>) -> anyhow::Result<String> {
-    if let Some(id) = project_id {
-        return Ok(id);
-    }
+/// Resolve project name to ID by looking up all projects
+async fn resolve_project_name(name: &str) -> anyhow::Result<String> {
+    let client = TickTickClient::new()?;
+    let projects = client.list_projects().await?;
+    let project = projects
+        .iter()
+        .find(|p| p.name.eq_ignore_ascii_case(name))
+        .ok_or_else(|| anyhow::anyhow!("Project not found: {}", name))?;
+    Ok(project.id.clone())
+}
 
-    let config = Config::load()?;
-    config.default_project_id.ok_or_else(|| {
-        anyhow::anyhow!(
-            "No project specified. Use --project-id or set a default with 'tickrs project use <name>'"
-        )
-    })
+/// Get the project ID from argument, name lookup, or config default
+async fn get_project_id(
+    project_id: Option<String>,
+    project_name: Option<String>,
+) -> anyhow::Result<String> {
+    match (project_id, project_name) {
+        (Some(_), Some(_)) => {
+            anyhow::bail!("Cannot specify both --project-id and --project-name")
+        }
+        (Some(id), None) => Ok(id),
+        (None, Some(name)) => resolve_project_name(&name).await,
+        (None, None) => {
+            let config = Config::load()?;
+            config.default_project_id.ok_or_else(|| {
+                anyhow::anyhow!(
+                    "No project specified. Use --project-id, --project-name, or set a default with 'tickrs project use <name>'"
+                )
+            })
+        }
+    }
 }
 
 /// List tasks in a project
 async fn cmd_task_list(
     project_id: Option<String>,
+    project_name: Option<String>,
     priority_filter: Option<Priority>,
     tag_filter: Option<String>,
     status_filter: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
     let client = TickTickClient::new()?;
     let mut tasks = client.list_tasks(&project_id).await?;
 
@@ -593,10 +623,11 @@ async fn cmd_task_list(
 async fn cmd_task_show(
     task_id: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
     let client = TickTickClient::new()?;
     let task = client.get_task(&project_id, task_id).await?;
 
@@ -623,6 +654,7 @@ async fn cmd_task_show(
 async fn cmd_task_create(
     title: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     content: Option<String>,
     priority: Option<Priority>,
     tags: Option<String>,
@@ -634,7 +666,7 @@ async fn cmd_task_create(
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
 
     // Parse dates
     let (start_date, due_date) = parse_task_dates(date, start, due)?;
@@ -680,6 +712,7 @@ async fn cmd_task_create(
 async fn cmd_task_update(
     task_id: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     title: Option<String>,
     content: Option<String>,
     priority: Option<Priority>,
@@ -692,7 +725,7 @@ async fn cmd_task_update(
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
 
     // Parse dates
     let (start_date, due_date) = parse_task_dates(date, start, due)?;
@@ -739,11 +772,12 @@ async fn cmd_task_update(
 async fn cmd_task_delete(
     task_id: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     force: bool,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
 
     // Confirm unless --force is specified
     if !force && format == OutputFormat::Text {
@@ -784,10 +818,11 @@ async fn cmd_task_delete(
 async fn cmd_task_complete(
     task_id: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
 
     let client = TickTickClient::new()?;
     client.complete_task(&project_id, task_id).await?;
@@ -814,10 +849,11 @@ async fn cmd_task_complete(
 async fn cmd_task_uncomplete(
     task_id: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
 
     let client = TickTickClient::new()?;
     let task = client.uncomplete_task(&project_id, task_id).await?;
@@ -840,36 +876,24 @@ async fn cmd_task_uncomplete(
     Ok(())
 }
 
-/// Parse task dates from various input formats
-///
-/// If `date` is provided, it sets both start and due date.
-/// Otherwise, `start` and `due` can be specified separately.
 fn parse_task_dates(
     date: Option<String>,
     start: Option<String>,
     due: Option<String>,
 ) -> anyhow::Result<(Option<String>, Option<String>)> {
-    // If natural language date is provided, use it for both start and due
     if let Some(date_str) = date {
         let dt = parse_date(&date_str)?;
         let formatted = dt.format("%Y-%m-%dT%H:%M:%S%z").to_string();
         return Ok((Some(formatted.clone()), Some(formatted)));
     }
 
-    // Parse individual dates
-    let start_date = if let Some(start_str) = start {
-        let dt = parse_date(&start_str)?;
-        Some(dt.format("%Y-%m-%dT%H:%M:%S%z").to_string())
-    } else {
-        None
-    };
+    let start_date = start
+        .map(|s| parse_date(&s).map(|dt| dt.format("%Y-%m-%dT%H:%M:%S%z").to_string()))
+        .transpose()?;
 
-    let due_date = if let Some(due_str) = due {
-        let dt = parse_date(&due_str)?;
-        Some(dt.format("%Y-%m-%dT%H:%M:%S%z").to_string())
-    } else {
-        None
-    };
+    let due_date = due
+        .map(|s| parse_date(&s).map(|dt| dt.format("%Y-%m-%dT%H:%M:%S%z").to_string()))
+        .transpose()?;
 
     Ok((start_date, due_date))
 }
@@ -884,7 +908,8 @@ async fn cmd_subtask(
         SubtaskCommands::List {
             task_id,
             project_id,
-        } => cmd_subtask_list(&task_id, project_id, format, quiet).await,
+            project_name,
+        } => cmd_subtask_list(&task_id, project_id, project_name, format, quiet).await,
     }
 }
 
@@ -892,10 +917,11 @@ async fn cmd_subtask(
 async fn cmd_subtask_list(
     task_id: &str,
     project_id: Option<String>,
+    project_name: Option<String>,
     format: OutputFormat,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    let project_id = get_project_id(project_id)?;
+    let project_id = get_project_id(project_id, project_name).await?;
     let client = TickTickClient::new()?;
     let task = client.get_task(&project_id, task_id).await?;
 
