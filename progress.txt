@@ -770,3 +770,23 @@ Wrote comprehensive README.md documentation as specified in PRD Phase 14.
 - All 213 tests pass
 - `cargo clippy -- -D warnings` passes
 - PRD Phase 14 "Write comprehensive README.md" requirement complete
+
+## 2026-01-14: Created .env.example (Phase 14)
+
+### What was done
+Created `.env.example` file with environment variable documentation as specified in PRD Phase 14.
+
+### File Contents
+- Instructions for obtaining TickTick OAuth credentials (developer portal URL, app registration steps)
+- `TICKTICK_CLIENT_ID` - Required OAuth client ID
+- `TICKTICK_CLIENT_SECRET` - Required OAuth client secret
+- `RUST_LOG` - Optional logging level (defaults to info)
+
+### Changes Made
+- `.env.example`: Created new file with comprehensive OAuth setup instructions
+- `plans/PRD.md`: Marked "Create .env.example" section as complete
+
+### Results
+- All 213 tests pass
+- `cargo clippy -- -D warnings` passes
+- PRD Phase 14 "Create .env.example" requirement complete

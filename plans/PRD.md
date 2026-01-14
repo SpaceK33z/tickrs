@@ -993,9 +993,9 @@ Tags: urgent, work
   - [x] Command reference with examples
   - [x] JSON output examples
   - [x] Troubleshooting section
-- [ ] Create `.env.example`
-  - [ ] Document required environment variables
-  - [ ] Add instructions for TickTick OAuth app setup
+- [x] Create `.env.example`
+  - [x] Document required environment variables
+  - [x] Add instructions for TickTick OAuth app setup
 - [ ] Write CONTRIBUTING.md
   - [ ] Development setup
   - [ ] Code style guide
