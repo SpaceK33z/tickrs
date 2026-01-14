@@ -853,7 +853,7 @@ Tags: urgent, work
     - [x] Call `api.delete_project(id)`
     - [x] Output success message
 - [x] Add command aliases (e.g., `ls` for list)
-- [ ] Write CLI integration tests for each command
+- [x] Write CLI integration tests for each command
 
 **Deliverables:**
 - [x] All project commands functional
@@ -915,7 +915,7 @@ Tags: urgent, work
     - [x] Call `api.uncomplete_task()`
     - [x] Output success message
 - [x] Add command aliases (e.g., `add` for create)
-- [ ] Write CLI integration tests
+- [x] Write CLI integration tests
 
 **Deliverables:**
 - [x] All task CRUD operations work
@@ -939,7 +939,7 @@ Tags: urgent, work
 - [x] Note: Subtask create/update/delete would require full task update
   - [x] Document this limitation in README
   - [ ] Optionally implement as task update with modified items array
-- [ ] Write integration tests
+- [x] Write integration tests
 
 **Deliverables:**
 - [x] Subtask listing works

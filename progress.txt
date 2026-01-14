@@ -994,3 +994,20 @@ Added documentation about subtask limitations to README.md as specified in PRD P
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 12 "Document this limitation in README" requirement complete
+
+## 2026-01-14: Updated PRD to mark CLI integration tests as complete (Phases 10, 11, 12)
+
+### What was done
+Updated the PRD to mark CLI integration test items as complete for Phases 10, 11, and 12. These tests were already implemented as documented in the 2026-01-14 entry "Added CLI integration tests with test fixtures (Phase 13)" but the corresponding checkboxes in Phases 10, 11, and 12 were still unchecked.
+
+### Changes Made
+- `plans/PRD.md`:
+  - Phase 10: Changed "Write CLI integration tests for each command" from `[ ]` to `[x]`
+  - Phase 11: Changed "Write CLI integration tests" from `[ ]` to `[x]`
+  - Phase 12: Changed "Write integration tests" from `[ ]` to `[x]`
+
+### Results
+- All 213+ tests pass (including 37 CLI integration tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phases 10, 11, 12 integration test items now correctly marked as complete
