@@ -232,4 +232,141 @@ mod tests {
             "INVALID_DATE"
         );
     }
+
+    #[test]
+    fn test_from_api_error_not_authenticated() {
+        let api_err = crate::api::ApiError::NotAuthenticated;
+        let app_err: AppError = api_err.into();
+        assert!(matches!(app_err, AppError::AuthRequired));
+        assert_eq!(app_err.code(), ErrorCode::AuthRequired);
+    }
+
+    #[test]
+    fn test_from_api_error_unauthorized() {
+        let api_err = crate::api::ApiError::Unauthorized;
+        let app_err: AppError = api_err.into();
+        assert!(matches!(app_err, AppError::AuthExpired));
+        assert_eq!(app_err.code(), ErrorCode::AuthExpired);
+    }
+
+    #[test]
+    fn test_from_api_error_not_found() {
+        let api_err = crate::api::ApiError::NotFound("Task".to_string());
+        let app_err: AppError = api_err.into();
+        match &app_err {
+            AppError::NotFound(resource) => assert_eq!(resource, "Task"),
+            _ => panic!("Expected NotFound variant"),
+        }
+        assert_eq!(app_err.code(), ErrorCode::NotFound);
+    }
+
+    #[test]
+    fn test_from_api_error_bad_request() {
+        let api_err = crate::api::ApiError::BadRequest("Invalid field".to_string());
+        let app_err: AppError = api_err.into();
+        match app_err {
+            AppError::InvalidRequest(msg) => assert_eq!(msg, "Invalid field"),
+            _ => panic!("Expected InvalidRequest variant"),
+        }
+    }
+
+    #[test]
+    fn test_from_api_error_rate_limited() {
+        let api_err = crate::api::ApiError::RateLimited;
+        let app_err: AppError = api_err.into();
+        assert!(matches!(app_err, AppError::RateLimited));
+        assert_eq!(app_err.code(), ErrorCode::RateLimited);
+    }
+
+    #[test]
+    fn test_from_api_error_server_error() {
+        let api_err = crate::api::ApiError::ServerError("500 Internal".to_string());
+        let app_err: AppError = api_err.into();
+        match app_err {
+            AppError::ServerError(msg) => assert_eq!(msg, "500 Internal"),
+            _ => panic!("Expected ServerError variant"),
+        }
+    }
+
+    #[test]
+    fn test_from_api_error_parse_error() {
+        let api_err = crate::api::ApiError::ParseError("invalid JSON".to_string());
+        let app_err: AppError = api_err.into();
+        match app_err {
+            AppError::ParseError(msg) => assert_eq!(msg, "invalid JSON"),
+            _ => panic!("Expected ParseError variant"),
+        }
+    }
+
+    #[test]
+    fn test_from_date_parse_error_invalid_format() {
+        let date_err =
+            crate::utils::date_parser::DateParseError::InvalidFormat("not a date".to_string());
+        let app_err: AppError = date_err.into();
+        match &app_err {
+            AppError::InvalidDate(msg) => assert_eq!(msg, "not a date"),
+            _ => panic!("Expected InvalidDate variant"),
+        }
+        assert_eq!(app_err.code(), ErrorCode::InvalidDate);
+    }
+
+    #[test]
+    fn test_from_date_parse_error_invalid_timezone() {
+        let date_err =
+            crate::utils::date_parser::DateParseError::InvalidTimezone("Bad/TZ".to_string());
+        let app_err: AppError = date_err.into();
+        match app_err {
+            AppError::InvalidDate(msg) => assert!(msg.contains("Bad/TZ")),
+            _ => panic!("Expected InvalidDate variant"),
+        }
+    }
+
+    #[test]
+    fn test_from_date_parse_error_past_date() {
+        let date_err =
+            crate::utils::date_parser::DateParseError::PastDate("2020-01-01".to_string());
+        let app_err: AppError = date_err.into();
+        match app_err {
+            AppError::InvalidDate(msg) => {
+                assert!(msg.contains("past"));
+                assert!(msg.contains("2020-01-01"));
+            }
+            _ => panic!("Expected InvalidDate variant"),
+        }
+    }
+
+    #[test]
+    fn test_from_anyhow_error() {
+        let anyhow_err = anyhow::anyhow!("Something went wrong");
+        let app_err: AppError = anyhow_err.into();
+        match &app_err {
+            AppError::Other(msg) => assert!(msg.contains("Something went wrong")),
+            _ => panic!("Expected Other variant"),
+        }
+        assert_eq!(app_err.code(), ErrorCode::Unknown);
+    }
+
+    #[test]
+    fn test_all_error_codes_have_display() {
+        // Verify all error codes can be displayed as SCREAMING_SNAKE_CASE
+        let codes = vec![
+            ErrorCode::AuthRequired,
+            ErrorCode::AuthExpired,
+            ErrorCode::NotFound,
+            ErrorCode::InvalidRequest,
+            ErrorCode::RateLimited,
+            ErrorCode::ServerError,
+            ErrorCode::NetworkError,
+            ErrorCode::ParseError,
+            ErrorCode::ConfigError,
+            ErrorCode::InvalidDate,
+            ErrorCode::NoProject,
+            ErrorCode::Unknown,
+        ];
+
+        for code in codes {
+            let display = code.to_string();
+            assert!(display.chars().all(|c| c.is_uppercase() || c == '_'));
+        }
+    }
 }

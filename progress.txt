@@ -473,3 +473,32 @@ Added comprehensive unit tests for edge cases as specified in PRD Phase 13.
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 13 "Test edge cases" requirement complete
+
+## 2026-01-14: Added error handling coverage tests (Phase 13)
+
+### What was done
+Added comprehensive unit tests for error conversion functions (`From` trait implementations) to complete the "Add error handling coverage" item in PRD Phase 13.
+
+### Tests Added (`src/utils/error.rs`)
+1. `test_from_api_error_not_authenticated` - Verifies NotAuthenticated → AuthRequired conversion
+2. `test_from_api_error_unauthorized` - Verifies Unauthorized → AuthExpired conversion
+3. `test_from_api_error_not_found` - Verifies NotFound resource conversion with message preservation
+4. `test_from_api_error_bad_request` - Verifies BadRequest → InvalidRequest conversion
+5. `test_from_api_error_rate_limited` - Verifies RateLimited conversion
+6. `test_from_api_error_server_error` - Verifies ServerError conversion with message
+7. `test_from_api_error_parse_error` - Verifies ParseError conversion
+8. `test_from_date_parse_error_invalid_format` - Verifies InvalidFormat → InvalidDate conversion
+9. `test_from_date_parse_error_invalid_timezone` - Verifies InvalidTimezone conversion
+10. `test_from_date_parse_error_past_date` - Verifies PastDate conversion
+11. `test_from_anyhow_error` - Verifies anyhow::Error → Other conversion
+12. `test_all_error_codes_have_display` - Verifies all ErrorCode variants display as SCREAMING_SNAKE_CASE
+
+### Changes Made
+- `src/utils/error.rs`: Added 12 new tests for error conversion coverage
+- `plans/PRD.md`: Marked "Add error handling coverage" section as complete
+
+### Results
+- All 107 tests pass (12 new tests)
+- `cargo clippy -- -D warnings` passes
+- `cargo fmt --check` passes
+- PRD Phase 13 "Add error handling coverage" requirement complete

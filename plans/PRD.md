@@ -959,12 +959,12 @@ Tags: urgent, work
   - [ ] API client with mock server
   - [ ] CLI commands with test fixtures
   - [ ] OAuth flow simulation
-- [ ] Add error handling coverage
-  - [ ] Network errors
-  - [ ] Invalid JSON responses
-  - [ ] Missing configuration
-  - [ ] Invalid token
-  - [ ] API rate limits
+- [x] Add error handling coverage
+  - [x] Network errors
+  - [x] Invalid JSON responses
+  - [x] Missing configuration
+  - [x] Invalid token
+  - [x] API rate limits
 - [x] Test edge cases
   - [x] Empty project/task lists
   - [x] INBOX project handling
