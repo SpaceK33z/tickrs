@@ -854,3 +854,50 @@ Added comprehensive inline documentation (doc comments) to all public types, fun
 - `cargo clippy -- -D warnings` passes
 - `cargo fmt --check` passes
 - PRD Phase 14 "Add inline documentation" requirement complete
+
+## 2026-01-14: Created usage examples (Phase 14)
+
+### What was done
+Created three usage examples in the `examples/` directory as specified in PRD Phase 14.
+
+### Examples Created
+
+#### `examples/automation.rs` - AI Agent Usage
+Demonstrates how to use tickrs for AI agent-driven task management:
+- JSON response parsing structures
+- Helper functions for running tickrs commands
+- Getting projects, listing tasks
+- Creating, completing, and deleting tasks
+- Error handling patterns
+- Full workflow example with cleanup
+
+#### `examples/json_parsing.rs` - JSON Output Parsing
+Comprehensive examples of parsing tickrs JSON output:
+- Response structure definitions (JsonResponse, ErrorDetail)
+- Data structures (ProjectListData, TaskListData, TaskData, etc.)
+- Domain models (Project, Task, Subtask)
+- Parsing project list, task list, error responses
+- Parsing tasks with subtasks
+- Parsing version response
+- Generic response handling pattern demonstration
+
+#### `examples/batch_operations.rs` - Bulk Task Creation
+Shows patterns for batch operations:
+- Batch create multiple tasks
+- Batch complete tasks
+- Batch delete tasks
+- Find tasks by filter predicate
+- Complete matching tasks with filters
+- Full workflow: create, filter, complete, list, delete
+
+### Changes Made
+- Created `examples/automation.rs`
+- Created `examples/json_parsing.rs`
+- Created `examples/batch_operations.rs`
+- Updated `plans/PRD.md`: Marked "Create usage examples" section as complete
+
+### Results
+- All examples compile successfully
+- All 213+ tests pass (including 7 doc tests)
+- `cargo clippy -- -D warnings` passes
+- PRD Phase 14 "Create usage examples" requirement complete

@@ -1005,10 +1005,10 @@ Tags: urgent, work
   - [x] All public functions have doc comments
   - [x] Module-level documentation
   - [x] Example code in doc comments
-- [ ] Create usage examples
-  - [ ] `examples/automation.rs` - AI agent usage
-  - [ ] `examples/json_parsing.rs` - Parsing JSON output
-  - [ ] `examples/batch_operations.rs` - Bulk task creation
+- [x] Create usage examples
+  - [x] `examples/automation.rs` - AI agent usage
+  - [x] `examples/json_parsing.rs` - Parsing JSON output
+  - [x] `examples/batch_operations.rs` - Bulk task creation
 - [ ] Generate API documentation
   - [ ] `cargo doc --open`
 
