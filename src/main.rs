@@ -101,13 +101,19 @@ async fn cmd_init(format: OutputFormat, quiet: bool) -> anyhow::Result<()> {
         )
     })?;
 
+    // Create auth handler and get URL first
+    let auth = AuthHandler::new(client_id, client_secret);
+    let (auth_url, _) = auth.get_auth_url()?;
+
     if !quiet && format == OutputFormat::Text {
         println!("Opening browser for TickTick authorization...");
-        println!("Please authorize the application in your browser.");
+        println!();
+        println!("If the browser doesn't open, visit this URL:");
+        println!("{}", auth_url);
+        println!();
     }
 
     // Run OAuth flow
-    let auth = AuthHandler::new(client_id, client_secret);
     let token = auth.run_oauth_flow().await?;
 
     // Save token

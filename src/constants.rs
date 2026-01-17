@@ -44,6 +44,9 @@ pub const ENV_CLIENT_ID: &str = "TICKTICK_CLIENT_ID";
 /// Environment variable for client secret
 pub const ENV_CLIENT_SECRET: &str = "TICKTICK_CLIENT_SECRET";
 
+/// Environment variable for access token (bypasses init)
+pub const ENV_TOKEN: &str = "TICKTICK_TOKEN";
+
 /// Environment variable for log level
 pub const ENV_LOG_LEVEL: &str = "RUST_LOG";
 
@@ -89,5 +92,6 @@ mod tests {
     fn test_env_var_names() {
         assert_eq!(ENV_CLIENT_ID, "TICKTICK_CLIENT_ID");
         assert_eq!(ENV_CLIENT_SECRET, "TICKTICK_CLIENT_SECRET");
+        assert_eq!(ENV_TOKEN, "TICKTICK_TOKEN");
     }
 }

@@ -53,8 +53,8 @@ impl AuthHandler {
     pub async fn run_oauth_flow(&self) -> Result<String> {
         let (auth_url, csrf_token) = self.get_auth_url()?;
 
-        // Open browser for user authorization
-        webbrowser::open(&auth_url).context("Failed to open browser for authorization")?;
+        // Try to open browser, but don't fail if it can't open (e.g., headless environments)
+        let _ = webbrowser::open(&auth_url);
 
         // Wait for callback with authorization code
         let code = self.capture_callback(csrf_token)?;

@@ -374,7 +374,23 @@ The OAuth access token is stored with 0600 permissions (owner read/write only).
 |----------|-------------|
 | `TICKTICK_CLIENT_ID` | OAuth Client ID (required for init) |
 | `TICKTICK_CLIENT_SECRET` | OAuth Client Secret (required for init) |
+| `TICKTICK_TOKEN` | Access token (bypasses init, for automation) |
 | `RUST_LOG` | Logging level (e.g., `info`, `debug`) |
+
+### Token via Environment Variable
+
+For automation (e.g. in a Docker container or anywhere the CLI can't open a browser), provide the access token directly:
+
+```bash
+export TICKTICK_TOKEN="your_access_token_here"
+```
+
+When `TICKTICK_TOKEN` is set, using the `init` command is not required
+
+**Getting a token for CI/CD:**
+1. Run `tickrs init` locally to complete OAuth flow
+2. Copy the token from `~/.local/share/tickrs/token`
+3. Use e.g. `export TICKTICK_TOKEN=[your-token]`
 
 ## Troubleshooting
 

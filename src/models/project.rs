@@ -58,10 +58,14 @@ impl Project {
 }
 
 /// Project with its tasks and columns (kanban)
+///
+/// Note: The `project` field is optional because TickTick's `/project/{id}/data`
+/// endpoint doesn't return it for the inbox project.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProjectData {
-    pub project: Project,
+    #[serde(default)]
+    pub project: Option<Project>,
     #[serde(default)]
     pub tasks: Vec<Task>,
     #[serde(default)]
@@ -106,8 +110,19 @@ mod tests {
         let json = "{\"project\":{\"id\":\"proj123\",\"name\":\"Work\",\"color\":\"#FF5733\",\"sortOrder\":0,\"closed\":false,\"viewMode\":\"list\",\"kind\":\"TASK\"},\"tasks\":[],\"columns\":[]}";
 
         let data: ProjectData = serde_json::from_str(json).unwrap();
-        assert_eq!(data.project.id, "proj123");
+        assert_eq!(data.project.as_ref().unwrap().id, "proj123");
         assert!(data.tasks.is_empty());
+    }
+
+    #[test]
+    fn test_project_data_without_project_field() {
+        // TickTick's API doesn't return a project field for inbox
+        let json = "{\"tasks\":[],\"columns\":[]}";
+
+        let data: ProjectData = serde_json::from_str(json).unwrap();
+        assert!(data.project.is_none());
+        assert!(data.tasks.is_empty());
+        assert!(data.columns.is_empty());
     }
 
     #[test]

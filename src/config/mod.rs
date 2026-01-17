@@ -137,8 +137,23 @@ impl Config {
 pub struct TokenStorage;
 
 impl TokenStorage {
-    /// Load the access token from secure storage
+    /// Load the access token from environment variable or secure storage.
+    ///
+    /// The environment variable `TICKTICK_TOKEN` takes precedence over the
+    /// file-based token. This allows bypassing the `init` command for CI/CD
+    /// pipelines and automation scenarios.
     pub fn load() -> Result<Option<String>> {
+        use crate::constants::ENV_TOKEN;
+
+        // Check environment variable first (takes precedence)
+        if let Ok(token) = std::env::var(ENV_TOKEN) {
+            let token = token.trim().to_string();
+            if !token.is_empty() {
+                return Ok(Some(token));
+            }
+        }
+
+        // Fall back to file-based token
         let path = Self::token_path()?;
 
         if !path.exists() {
@@ -200,8 +215,22 @@ impl TokenStorage {
         Ok(())
     }
 
-    /// Check if a token exists
+    /// Check if a token exists (either via environment variable or file).
+    ///
+    /// Returns `true` if either:
+    /// - The `TICKTICK_TOKEN` environment variable is set and non-empty
+    /// - The token file exists at `~/.local/share/tickrs/token`
     pub fn exists() -> Result<bool> {
+        use crate::constants::ENV_TOKEN;
+
+        // Check environment variable first
+        if let Ok(token) = std::env::var(ENV_TOKEN) {
+            if !token.trim().is_empty() {
+                return Ok(true);
+            }
+        }
+
+        // Fall back to checking file
         let path = Self::token_path()?;
         Ok(path.exists())
     }
