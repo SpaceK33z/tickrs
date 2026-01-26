@@ -23,15 +23,23 @@ jobs:
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
             archive: tar.gz
+            use_cross: false
           - target: x86_64-apple-darwin
             os: macos-latest
             archive: tar.gz
+            use_cross: false
           - target: aarch64-apple-darwin
             os: macos-latest
             archive: tar.gz
+            use_cross: false
           - target: x86_64-pc-windows-msvc
             os: windows-latest
             archive: zip
+            use_cross: false
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive: tar.gz
+            use_cross: true
     steps:
       - uses: actions/checkout@v4
 
@@ -43,12 +51,23 @@ jobs:
         with:
           key: ${{ matrix.target }}
 
+      - name: Install cross
+        if: matrix.use_cross
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+
       - name: Install musl-tools
         if: contains(matrix.target, 'musl')
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
-      - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }}
+      - name: Build release binary (cross)
+        if: matrix.use_cross
+        run: cross build --release --target ${{ matrix.target }} --locked
+
+      - name: Build release binary (cargo)
+        if: ${{ !matrix.use_cross }}
+        run: cargo build --release --target ${{ matrix.target }} --locked
 
       - name: Create archive (Unix)
         if: matrix.archive == 'tar.gz'

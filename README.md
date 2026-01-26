@@ -38,6 +38,11 @@ sudo mv tickrs /usr/local/bin/
 curl -LO https://github.com/SpaceK33z/tickrs/releases/latest/download/tickrs-x86_64-unknown-linux-gnu.tar.gz
 tar -xzf tickrs-x86_64-unknown-linux-gnu.tar.gz
 sudo mv tickrs /usr/local/bin/
+
+# Linux (Raspberry Pi 64-bit)
+curl -LO https://github.com/SpaceK33z/tickrs/releases/latest/download/tickrs-aarch64-unknown-linux-gnu.tar.gz
+tar -xzf tickrs-aarch64-unknown-linux-gnu.tar.gz
+sudo mv tickrs /usr/local/bin/
 ```
 
 ### With Cargo
